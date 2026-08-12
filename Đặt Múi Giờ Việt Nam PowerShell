@@ -1,0 +1,16 @@
+# 1. Dat mui gio sang Viet Nam (Bangkok, Hanoi, Jakarta)
+tzutil /s "SE Asia Standard Time"
+
+# 2. Khoi dong lai dich vu thoi gian Windows
+net stop w32time
+w32tm /unregister
+w32tm /register
+net start w32time
+
+# 3. Chuyen sang may chu dong bo Google va Singapore (on dinh nhat cho VN)
+w32tm /config /manualpeerlist:"://google.com time.nist.gov sg.pool.ntp.org" /syncfromflags:manual /update
+
+# 4. Ep may tinh dong bo gio ngay lap tuc
+w32tm /resync /force
+
+Write-Host "Da chuyen sang mui gio Viet Nam va dong bo gio thanh cong!" -ForegroundColor Green
