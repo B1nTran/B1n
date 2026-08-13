@@ -1,6 +1,3 @@
---!native
--- https://github.com/78n/SimpleSpy 50/50 this breaks but it's a beta for a reason!
-
 if getgenv().SimpleSpyExecuted and type(getgenv().SimpleSpyShutdown) == "function" then
     getgenv().SimpleSpyShutdown()
 end
@@ -2316,7 +2313,7 @@ newButton("Join Discord",function()
     return "Joins The Simple Spy Discord"
 end,
 function()
-    setclipboard("https://discord.com/invite/AWS6ez9")
+    setclipboard()
     TextLabel.Text = "Copied invite to your clipboard"
     if request then
         request({Url = 'http://127.0.0.1:6463/rpc?v=1',Method = 'POST',Headers = {['Content-Type'] = 'application/json', Origin = 'https://discord.com'},Body = http:JSONEncode({cmd = 'INVITE_BROWSER',nonce = http:GenerateGUID(false),args = {code = 'AWS6ez9'}})})
