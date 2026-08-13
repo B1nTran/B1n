@@ -2309,17 +2309,6 @@ function()
     TextLabel.Text = ("[%s] Display more remoteinfo"):format(configs.advancedinfo and "ENABLED" or "DISABLED")
 end)
 
-newButton("Join Discord",function()
-    return "Joins The Simple Spy Discord"
-end,
-function()
-    setclipboard()
-    TextLabel.Text = "Copied invite to your clipboard"
-    if request then
-        request({Url = 'http://127.0.0.1:6463/rpc?v=1',Method = 'POST',Headers = {['Content-Type'] = 'application/json', Origin = 'https://discord.com'},Body = http:JSONEncode({cmd = 'INVITE_BROWSER',nonce = http:GenerateGUID(false),args = {code = 'AWS6ez9'}})})
-    end
-end)
-
 if configs.supersecretdevtoggle then
     newButton("Load SSV2.2",function()
         return "Load's Simple Spy V2.2"
