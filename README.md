@@ -27,19 +27,7 @@
 | **Công cụ hỗ trợ** | VS Code, Rojo, Git / GitHub, Helium |
 
 </div>
-
----
-
-### 📊 Thống kê GitHub của mình
-
-<div align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=TEN_GITHUB_CUA_BAN&show_icons=true&theme=tokyonight&hide_border=true" alt="GitHub Stats" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=TEN_GITHUB_CUA_BAN&layout=compact&theme=tokyonight&hide_border=true" alt="Top Languages" />
-</div>
-
 ---
 
 ###  📫 Kết nối với mình
-* 🎮 **Roblox Profile:** [Link tới trang Roblox của bạn](https://www.roblox.com)
-* 🐦 **Twitter/X:** [@Twitter_Cua_Ban](https://twitter.com)
-* 💬 **Discord:** `ten_discord_cua_ban`
+* 💬 **Discord:** `@b1ntran`
