@@ -1,0 +1,3117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#edf1f9" id="meta-theme">
+    <meta name="description" content="Đề kiểm tra giữa kỳ I môn GDQPAN 12 - Mã đề 301. Giao diện hiện đại, có chế độ sáng/tối, hiệu ứng và nhạc nền Lofi.">
+    <title>Kiểm tra GDQP 12 - Mã đề 301</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        /* Áp dụng giao diện sớm để tránh nháy sáng/tối khi tải trang */
+        (function () {
+            try {
+                var savedTheme = localStorage.getItem('gdqp-theme');
+                var useDark = savedTheme ? savedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+                try {
+                    var forcedTheme = new URLSearchParams(window.location.search).get('theme');
+                    if (forcedTheme === 'dark' || forcedTheme === 'light') useDark = forcedTheme === 'dark';
+                } catch (e) { /* bỏ qua */ }
+                document.documentElement.classList.toggle('dark', useDark);
+                if (localStorage.getItem('gdqp-effects') === 'off') document.documentElement.classList.add('effects-off');
+                if (localStorage.getItem('gdqp-sfx') === 'off') document.documentElement.classList.add('sfx-off');
+            } catch (e) { /* bỏ qua nếu trình duyệt chặn localStorage */ }
+        })();
+    </script>
+    <style>
+        /* ============================================================
+           1. BIẾN MÀU & THIẾT LẬP CHUNG
+           ============================================================ */
+        :root {
+            color-scheme: light;
+            --bg: #edf1f9;
+            --surface: rgba(255, 255, 255, 0.9);
+            --surface-strong: #ffffff;
+            --surface-soft: #f1f5fb;
+            --surface-2: #e5ecf7;
+            --border: rgba(15, 23, 42, 0.09);
+            --border-strong: rgba(15, 23, 42, 0.17);
+            --text: #0b1220;
+            --muted: #5f6f86;
+            --primary: #4f46e5;
+            --primary-strong: #4338ca;
+            --primary-soft: rgba(79, 70, 229, 0.1);
+            --accent: #0ea5e9;
+            --accent-soft: rgba(14, 165, 233, 0.13);
+            --success: #059669;
+            --success-soft: rgba(16, 185, 129, 0.14);
+            --danger: #e11d48;
+            --danger-soft: rgba(244, 63, 94, 0.12);
+            --warning: #d97706;
+            --warning-soft: rgba(245, 158, 11, 0.15);
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+            --shadow: 0 18px 40px -24px rgba(15, 23, 42, 0.32), 0 2px 8px rgba(15, 23, 42, 0.04);
+            --shadow-lg: 0 32px 70px -30px rgba(15, 23, 42, 0.45);
+            --header-bg: rgba(255, 255, 255, 0.78);
+            --grad: linear-gradient(135deg, #4f46e5, #0ea5e9);
+            --grad-warm: linear-gradient(120deg, #f59e0b, #f97316, #ef4444);
+            --radius: 20px;
+            --scrollbar: #c3cfe2;
+        }
+
+        html.dark {
+            color-scheme: dark;
+            --bg: #060a13;
+            --surface: rgba(19, 27, 45, 0.9);
+            --surface-strong: #131b2d;
+            --surface-soft: #0e1627;
+            --surface-2: #1a2438;
+            --border: rgba(148, 163, 184, 0.14);
+            --border-strong: rgba(148, 163, 184, 0.27);
+            --text: #e8eefb;
+            --muted: #93a3bb;
+            --primary: #818cf8;
+            --primary-strong: #a5b4fc;
+            --primary-soft: rgba(129, 140, 248, 0.16);
+            --accent: #22d3ee;
+            --accent-soft: rgba(34, 211, 238, 0.13);
+            --success: #34d399;
+            --success-soft: rgba(52, 211, 153, 0.15);
+            --danger: #fb7185;
+            --danger-soft: rgba(251, 113, 133, 0.15);
+            --warning: #fbbf24;
+            --warning-soft: rgba(251, 191, 36, 0.15);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+            --shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(0, 0, 0, 0.25);
+            --shadow-lg: 0 40px 90px -40px #000000;
+            --header-bg: rgba(8, 13, 23, 0.76);
+            --grad: linear-gradient(135deg, #6366f1, #06b6d4);
+            --scrollbar: #334155;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100svh;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body.locked { overflow: hidden; }
+
+        body::-webkit-scrollbar { width: 10px; }
+        body::-webkit-scrollbar-track { background: transparent; }
+        body::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 99px; border: 2px solid var(--bg); }
+
+        ::selection { background: var(--primary); color: #fff; }
+
+        button, input { font: inherit; }
+
+        .hidden { display: none !important; }
+
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+        }
+
+        /* ============================================================
+           2. NỀN HIỆU ỨNG (AURORA + LƯỚI + ÁNH SÁNG CHUỘT)
+           ============================================================ */
+        .bg-scene {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.55;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 48vmax; height: 48vmax; left: -16vmax; top: -18vmax;
+            background: radial-gradient(circle at 30% 30%, #818cf8, transparent 66%);
+            animation: drift1 22s ease-in-out infinite alternate;
+        }
+        .orb-2 {
+            width: 40vmax; height: 40vmax; right: -14vmax; top: 8vmax;
+            background: radial-gradient(circle at 50% 50%, #22d3ee, transparent 66%);
+            animation: drift2 27s ease-in-out infinite alternate;
+        }
+        .orb-3 {
+            width: 44vmax; height: 44vmax; left: 30vw; bottom: -22vmax;
+            background: radial-gradient(circle at 50% 50%, #f472b6, transparent 66%);
+            opacity: 0.32;
+            animation: drift3 24s ease-in-out infinite alternate;
+        }
+
+        html.dark .orb-1 { opacity: 0.3; }
+        html.dark .orb-2 { opacity: 0.26; }
+        html.dark .orb-3 { opacity: 0.18; }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(100, 116, 139, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100, 116, 139, 0.1) 1px, transparent 1px);
+            background-size: 64px 64px;
+            -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 8%, transparent 74%);
+            mask-image: radial-gradient(ellipse at 50% 0%, #000 8%, transparent 74%);
+        }
+
+        html.dark .grid-overlay {
+            background-image:
+                linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+        }
+
+        .cursor-glow {
+            position: fixed;
+            left: 0; top: 0;
+            width: 540px; height: 540px;
+            margin: -270px 0 0 -270px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.17), transparent 70%);
+            filter: blur(18px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            will-change: transform;
+        }
+        .cursor-glow.visible { opacity: 1; }
+        html.dark .cursor-glow { background: radial-gradient(circle, rgba(56, 189, 248, 0.14), transparent 70%); }
+
+        @keyframes drift1 { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(9vmax, 7vmax, 0) scale(1.12); } }
+        @keyframes drift2 { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-8vmax, 10vmax, 0) scale(1.16); } }
+        @keyframes drift3 { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(7vmax, -9vmax, 0) scale(1.1); } }
+
+        /* ============================================================
+           3. HEADER
+           ============================================================ */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            -webkit-backdrop-filter: blur(18px);
+            backdrop-filter: blur(18px);
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+
+        .topbar-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 11px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+
+        .brand-icon {
+            width: 43px; height: 43px;
+            flex: none;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: #fff;
+            background: var(--grad);
+            box-shadow: 0 10px 24px -10px rgba(79, 70, 229, 0.8);
+        }
+        .brand-icon svg { width: 23px; height: 23px; }
+
+        .brand-text { min-width: 0; }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 15.5px;
+            font-weight: 800;
+            letter-spacing: -0.2px;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .title-short { display: none; }
+
+        .brand p {
+            margin: 2px 0 0;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 9px; flex: none; }
+
+        .timer {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 12px;
+            border-radius: 13px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+            transition: background 0.25s ease, border-color 0.25s ease;
+        }
+        .timer svg { width: 17px; height: 17px; color: var(--warning); flex: none; }
+        .timer-label { font-size: 11.5px; font-weight: 600; color: var(--muted); }
+        .timer-value {
+            font-weight: 800;
+            font-size: 17px;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.4px;
+            line-height: 1;
+        }
+        .timer.warning { border-color: var(--danger); background: var(--danger-soft); animation: pulse 1.4s ease-in-out infinite; }
+        .timer.warning .timer-value, .timer.warning svg { color: var(--danger); }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 3px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .icon-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px; height: 36px;
+            padding: 0;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+        .icon-btn:hover { background: var(--primary-soft); color: var(--primary); }
+        .icon-btn:active { transform: scale(0.94); }
+        .icon-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+        .icon-btn svg { width: 19px; height: 19px; }
+        .icon-btn .icon-sun { display: none; }
+        html.dark .icon-btn .icon-moon { display: none; }
+        html.dark .icon-btn .icon-sun { display: inline-flex; }
+
+        .icon-btn .dot {
+            position: absolute;
+            top: 6px; right: 6px;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--danger);
+            opacity: 0;
+            transform: scale(0.4);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .icon-btn.is-off .dot { opacity: 1; transform: scale(1); }
+
+        html.sfx-off .sfx-icon-on { display: none; }
+        html:not(.sfx-off) .sfx-icon-off { display: none; }
+
+        .music-btn .eq { display: none; align-items: flex-end; gap: 2px; height: 16px; }
+        .music-btn .eq i {
+            width: 3px; height: 5px; border-radius: 2px; background: currentColor;
+            animation: equalize 1s ease-in-out infinite;
+        }
+        .music-btn .eq i:nth-child(2) { animation-delay: 0.18s; }
+        .music-btn .eq i:nth-child(3) { animation-delay: 0.36s; }
+        .music-btn .eq i:nth-child(4) { animation-delay: 0.54s; }
+        .music-btn.playing { background: var(--primary-soft); color: var(--primary); }
+        .music-btn.playing .music-note { display: none; }
+        .music-btn.playing .eq { display: flex; }
+
+        @keyframes equalize {
+            0%, 100% { height: 5px; }
+            50% { height: 16px; }
+        }
+
+        .has-tip { position: relative; }
+        .has-tip::after {
+            content: attr(data-tip);
+            position: absolute;
+            top: calc(100% + 9px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-4px);
+            padding: 5px 9px;
+            border-radius: 7px;
+            background: #0f172a;
+            color: #fff;
+            font-size: 10.5px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            z-index: 90;
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
+        }
+        .has-tip:hover::after, .has-tip:focus-visible::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ============================================================
+           4. BUTTONS
+           ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 13px;
+            border: 1px solid transparent;
+            font-size: 13.5px;
+            font-weight: 700;
+            line-height: 1.2;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+        }
+        .btn svg { width: 17px; height: 17px; flex: none; }
+        .btn:active { transform: scale(0.97); }
+        .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+        .btn-primary {
+            background: var(--grad);
+            color: #fff;
+            box-shadow: 0 12px 24px -12px rgba(79, 70, 229, 0.75);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -12px rgba(79, 70, 229, 0.85); }
+
+        .btn-ghost {
+            background: var(--surface-soft);
+            color: var(--text);
+            border-color: var(--border);
+        }
+        .btn-ghost:hover { background: var(--surface-2); }
+
+        .btn-light { background: #fff; color: #4338ca; box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.35); }
+        .btn-light:hover { background: #f1f5ff; }
+
+        .btn-block { width: 100%; }
+
+        /* ============================================================
+           5. BỐ CỤC CHÍNH
+           ============================================================ */
+        main.shell {
+            position: relative;
+            width: 100%;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 20px 20px 44px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 332px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .questions-col { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+
+        .sidebar {
+            position: sticky;
+            top: 84px;
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+            max-height: calc(100vh - 104px);
+            overflow-y: auto;
+            padding-right: 3px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar) transparent;
+        }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 99px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+
+        .sidebar-head { display: none; }
+
+        /* ============================================================
+           6. THÔNG BÁO AI
+           ============================================================ */
+        .ai-notice {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 17px;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            background: linear-gradient(120deg, rgba(251, 191, 36, 0.17), rgba(249, 115, 22, 0.07) 55%, rgba(236, 72, 153, 0.07));
+            overflow: hidden;
+            animation: cardIn 0.55s cubic-bezier(0.22, 0.8, 0.25, 1) both;
+            box-shadow: var(--shadow-sm);
+        }
+        .ai-notice::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(100deg, transparent 28%, rgba(255, 255, 255, 0.34) 48%, transparent 68%);
+            transform: translateX(-110%);
+            animation: shine 7s ease-in-out infinite;
+            pointer-events: none;
+        }
+        html.dark .ai-notice::after { background: linear-gradient(100deg, transparent 28%, rgba(255, 255, 255, 0.08) 48%, transparent 68%); }
+
+        .ai-badge {
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 38px; height: 38px;
+            border-radius: 12px;
+            background: var(--grad-warm);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 18px -8px rgba(249, 115, 22, 0.8);
+        }
+
+        .ai-notice p {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            padding-top: 2px;
+            font-size: 12.5px;
+            font-weight: 500;
+            line-height: 1.6;
+            color: var(--text);
+            text-wrap: balance;
+        }
+        .ai-notice strong { color: var(--warning); font-weight: 800; }
+
+        @keyframes shine {
+            0%, 45% { transform: translateX(-110%); }
+            75%, 100% { transform: translateX(110%); }
+        }
+
+        /* ============================================================
+           7. RESULT BANNER
+           ============================================================ */
+        .result-banner {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 20px;
+            border-radius: 22px;
+            color: #fff;
+            background: linear-gradient(120deg, #4f46e5, #0ea5e9 62%, #06b6d4);
+            box-shadow: 0 24px 50px -24px rgba(79, 70, 229, 0.9);
+            overflow: hidden;
+            animation: cardIn 0.5s cubic-bezier(0.22, 0.8, 0.25, 1) both;
+        }
+        .result-banner::before, .result-banner::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.13);
+            pointer-events: none;
+        }
+        .result-banner::before { width: 170px; height: 170px; right: -50px; top: -80px; }
+        .result-banner::after { width: 110px; height: 110px; right: 90px; bottom: -70px; }
+
+        .result-emoji {
+            position: relative;
+            z-index: 1;
+            flex: none;
+            font-size: 36px;
+            line-height: 1;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+        }
+
+        .result-body { position: relative; z-index: 1; flex: 1; min-width: 0; }
+        .result-body h2 { margin: 0 0 4px; font-size: 18px; font-weight: 800; letter-spacing: -0.2px; }
+        .result-body p { margin: 0 0 10px; font-size: 12.5px; line-height: 1.5; color: rgba(255, 255, 255, 0.87); }
+
+        .result-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .rchip {
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.17);
+            font-size: 11px;
+            font-weight: 600;
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+        }
+        .rchip b { font-weight: 900; }
+
+        .result-score-wrap { position: relative; z-index: 1; flex: none; text-align: center; }
+        .result-score { font-size: 38px; font-weight: 900; line-height: 1; letter-spacing: -1px; }
+        .result-score-label { font-size: 10.5px; font-weight: 600; opacity: 0.8; margin: 3px 0 10px; }
+
+        /* ============================================================
+           8. CÂU HỎI
+           ============================================================ */
+        .questions { display: flex; flex-direction: column; gap: 13px; }
+
+        .question-card {
+            position: relative;
+            padding: 20px 22px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            scroll-margin-top: 90px;
+            animation: cardIn 0.55s cubic-bezier(0.22, 0.8, 0.25, 1) both;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .question-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-lg);
+        }
+        .question-card.flash {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow-lg);
+        }
+
+        .q-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .q-number {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 999px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--surface-soft);
+            color: var(--muted);
+            font-size: 10.5px;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .chip.answered { background: var(--primary-soft); color: var(--primary); }
+        .chip.correct { background: var(--success-soft); color: var(--success); }
+        .chip.wrong { background: var(--danger-soft); color: var(--danger); }
+        .chip.empty { background: var(--warning-soft); color: var(--warning); }
+
+        .q-text {
+            margin: 0 0 15px;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.55;
+            color: var(--text);
+            letter-spacing: -0.1px;
+        }
+
+        .options { display: flex; flex-direction: column; gap: 8px; }
+
+        .option {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            width: 100%;
+            padding: 11px 13px;
+            border-radius: 14px;
+            border: 1.5px solid var(--border);
+            background: var(--surface-strong);
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            overflow: hidden;
+            transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .option:hover {
+            border-color: var(--primary);
+            background: var(--primary-soft);
+            transform: translateX(3px);
+        }
+        .option:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+        .option:disabled { cursor: default; opacity: 1; }
+        .option:disabled:hover { transform: none; }
+
+        .option-key {
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 27px; height: 27px;
+            margin-top: 1px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: var(--surface-soft);
+            color: var(--muted);
+            font-size: 11.5px;
+            font-weight: 800;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .option-text {
+            flex: 1;
+            min-width: 0;
+            font-size: 13.5px;
+            font-weight: 500;
+            line-height: 1.55;
+            color: var(--text);
+        }
+
+        .option.selected {
+            border-color: var(--primary);
+            background: linear-gradient(120deg, var(--primary-soft), var(--accent-soft));
+            box-shadow: 0 0 0 3px var(--primary-soft);
+        }
+        .option.selected .option-key {
+            background: var(--grad);
+            border-color: transparent;
+            color: #fff;
+            transform: scale(1.06);
+        }
+        .option.selected .option-text { font-weight: 600; }
+
+        .option.correct {
+            border-color: var(--success);
+            background: var(--success-soft);
+            box-shadow: 0 0 0 3px var(--success-soft);
+        }
+        .option.correct .option-key { background: var(--success); border-color: transparent; color: #fff; }
+        .option.correct .option-text { font-weight: 600; }
+
+        .option.wrong {
+            border-color: var(--danger);
+            background: var(--danger-soft);
+            box-shadow: 0 0 0 3px var(--danger-soft);
+        }
+        .option.wrong .option-key { background: var(--danger); border-color: transparent; color: #fff; }
+        .option.wrong .option-text { text-decoration: line-through; opacity: 0.82; }
+
+        .option.pop { animation: optionPop 0.32s ease; }
+
+        .mark {
+            flex: none;
+            display: none;
+            place-items: center;
+            width: 20px; height: 20px;
+            margin-top: 3px;
+            border-radius: 50%;
+            color: #fff;
+        }
+        .mark svg { width: 13px; height: 13px; display: block; }
+        .option.correct .mark-check { display: grid; background: var(--success); animation: popIn 0.28s ease; }
+        .option.wrong .mark-x { display: grid; background: var(--danger); animation: popIn 0.28s ease; }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.17;
+            transform: scale(0);
+            animation: rippleAnim 0.62s ease-out forwards;
+            pointer-events: none;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 14px;
+            padding: 13px 15px;
+            border-radius: 14px;
+            border: 1px dashed var(--border-strong);
+            background: var(--surface-soft);
+        }
+        .explanation.open { display: block; animation: fadeUp 0.35s ease both; }
+
+        .explanation-title {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 5px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+            color: var(--success);
+        }
+        .explanation-title svg { width: 15px; height: 15px; }
+        .explanation p { margin: 0; font-size: 12.5px; line-height: 1.65; color: var(--muted); }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes optionPop {
+            0% { transform: scale(1); }
+            45% { transform: scale(0.985); }
+            100% { transform: scale(1); }
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.4); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes rippleAnim {
+            to { transform: scale(1); opacity: 0; }
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.35); }
+            50% { box-shadow: 0 0 0 6px rgba(225, 29, 72, 0); }
+        }
+
+        .end-note {
+            padding: 18px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            border-radius: 16px;
+            border: 1px dashed var(--border-strong);
+        }
+
+        /* ============================================================
+           9. SIDEBAR CARDS
+           ============================================================ */
+        .card {
+            padding: 15px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 11px;
+        }
+        .card-head h3 {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin: 0;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .card-head h3 svg { width: 16px; height: 16px; color: var(--primary); flex: none; }
+
+        .pill {
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-size: 10.5px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .progress-track {
+            height: 8px;
+            border-radius: 99px;
+            background: var(--surface-2);
+            overflow: hidden;
+        }
+        .progress-track span {
+            display: block;
+            width: 0%;
+            height: 100%;
+            border-radius: 99px;
+            background: var(--grad);
+            transition: width 0.45s cubic-bezier(0.22, 0.8, 0.25, 1);
+        }
+        .hint { margin: 8px 0 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
+
+        .field { margin-bottom: 10px; }
+        .field:last-child { margin-bottom: 0; }
+        .field label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+        }
+        .field input {
+            width: 100%;
+            padding: 9px 11px;
+            border-radius: 11px;
+            border: 1px solid var(--border-strong);
+            background: var(--surface-strong);
+            color: var(--text);
+            font-size: 12.5px;
+            font-weight: 500;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .field input::placeholder { color: var(--muted); opacity: 0.7; }
+        .field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+
+        .legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 10px;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 600; color: var(--muted); }
+        .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+        .legend-dot.answered { background: var(--primary); }
+        .legend-dot.empty { background: var(--surface-2); border: 1px solid var(--border-strong); }
+        .legend-dot.correct { background: var(--success); }
+        .legend-dot.wrong { background: var(--danger); }
+
+        .palette {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 6px;
+            max-height: 226px;
+            overflow-y: auto;
+            padding: 2px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar) transparent;
+        }
+        .palette::-webkit-scrollbar { width: 5px; }
+        .palette::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 99px; }
+
+        .palette-btn {
+            height: 36px;
+            padding: 0;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface-soft);
+            color: var(--muted);
+            font-size: 11.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .palette-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+        .palette-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+        .palette-btn.answered {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 6px 14px -7px var(--primary);
+        }
+        .palette-btn.correct { background: var(--success); border-color: var(--success); color: #fff; box-shadow: 0 6px 14px -7px var(--success); }
+        .palette-btn.wrong { background: var(--danger); border-color: var(--danger); color: #fff; box-shadow: 0 6px 14px -7px var(--danger); }
+        .palette-btn.empty { background: var(--warning-soft); border-color: var(--warning); color: var(--warning); }
+        .palette-btn.bump { animation: paletteBump 0.28s ease; }
+        @keyframes paletteBump {
+            0% { transform: scale(1); }
+            45% { transform: scale(1.16); }
+            100% { transform: scale(1); }
+        }
+
+        .sidebar-submit { margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--border); }
+
+        /* Score card */
+        .score-card {
+            position: relative;
+            border: 0;
+            background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+            color: #fff;
+            overflow: hidden;
+        }
+        .score-card::after {
+            content: '';
+            position: absolute;
+            width: 170px; height: 170px;
+            right: -60px; top: -70px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            pointer-events: none;
+        }
+        .score-card .card-head { position: relative; z-index: 1; }
+        .score-card .card-head h3 { color: #fff; }
+        .score-card .card-head h3 svg { color: #fff; }
+
+        .score-ring {
+            position: relative;
+            display: grid;
+            place-items: center;
+            width: 104px; height: 104px;
+            margin: 3px auto 10px;
+            border-radius: 50%;
+            background: conic-gradient(#fff calc(var(--p, 0) * 1%), rgba(255, 255, 255, 0.22) 0);
+        }
+        .score-ring::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4338ca, #0284c7);
+        }
+        .score-ring div { position: relative; z-index: 1; text-align: center; line-height: 1.1; }
+        .score-ring b { display: block; font-size: 22px; font-weight: 900; }
+        .score-ring span { font-size: 9.5px; font-weight: 600; opacity: 0.82; }
+
+        .score-detail { position: relative; z-index: 1; margin: 0 0 11px; text-align: center; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.9); }
+
+        /* Music card */
+        .music-head { display: flex; align-items: center; gap: 10px; }
+        .music-art {
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 44px; height: 44px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #f472b6, #8b5cf6);
+            font-size: 20px;
+            box-shadow: 0 8px 18px -9px rgba(139, 92, 246, 0.9);
+        }
+        .music-head h3 { margin: 0; font-size: 13px; font-weight: 800; }
+        .music-head p { margin: 2px 0 0; font-size: 10.5px; color: var(--muted); }
+
+        .play-btn {
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 38px; height: 38px;
+            margin-left: auto;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: var(--grad);
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 8px 18px -8px rgba(79, 70, 229, 0.8);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .play-btn:hover { transform: scale(1.06); }
+        .play-btn svg { width: 16px; height: 16px; }
+        .play-btn .pause-icon { display: none; }
+        .play-btn.playing .play-icon { display: none; }
+        .play-btn.playing .pause-icon { display: block; }
+
+        .volume-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+        .volume-row > svg { width: 15px; height: 15px; color: var(--muted); flex: none; }
+        .volume-row input[type="range"] { flex: 1; min-width: 0; height: 4px; accent-color: var(--primary); cursor: pointer; }
+        .volume-row span { width: 34px; text-align: right; font-size: 10.5px; font-weight: 700; color: var(--muted); }
+
+        .music-note-text { margin: 8px 0 0; font-size: 10.5px; line-height: 1.45; color: var(--muted); }
+
+        /* ============================================================
+           10. MOBILE BAR, DRAWER & FOOTER
+           ============================================================ */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 65;
+            background: rgba(2, 6, 23, 0.52);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
+
+        .mobile-bar { display: none; }
+
+        .footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+            padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+        }
+        .footer-inner { max-width: 1200px; margin: 0 auto; text-align: center; }
+        .footer p { margin: 0; font-size: 11.5px; line-height: 1.6; color: var(--muted); }
+        .footer .footer-ai { margin-top: 4px; font-size: 11px; color: var(--warning); font-weight: 600; }
+
+        /* ============================================================
+           11. MODAL, TOAST, CONFETTI, SPARK
+           ============================================================ */
+        .modal { position: fixed; inset: 0; z-index: 120; display: none; align-items: center; justify-content: center; padding: 18px; }
+        .modal.open { display: flex; }
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.58);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-card {
+            position: relative;
+            width: 100%;
+            max-width: 430px;
+            padding: 26px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            background: var(--surface-strong);
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            animation: modalIn 0.3s cubic-bezier(0.22, 0.8, 0.25, 1);
+        }
+        .modal-icon {
+            display: grid;
+            place-items: center;
+            width: 52px; height: 52px;
+            margin: 0 auto 14px;
+            border-radius: 50%;
+            background: var(--warning-soft);
+            color: var(--warning);
+            font-size: 24px;
+            font-weight: 900;
+        }
+        .modal-card h3 { margin: 0 0 7px; font-size: 18px; font-weight: 800; }
+        .modal-card p { margin: 0 0 20px; font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+        .modal-actions { display: flex; gap: 9px; }
+        .modal-actions .btn { flex: 1; padding-left: 10px; padding-right: 10px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+        .toast-stack {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            transform: translateX(-50%);
+            pointer-events: none;
+            width: max-content;
+            max-width: calc(100vw - 28px);
+        }
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-strong);
+            color: var(--text);
+            box-shadow: var(--shadow-lg);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.4;
+            animation: toastIn 0.3s cubic-bezier(0.22, 0.8, 0.25, 1);
+        }
+        .toast.out { animation: toastOut 0.28s ease forwards; }
+        .toast-icon { font-size: 14px; line-height: 1; }
+        .toast.ok { border-color: var(--success); }
+        .toast.warn { border-color: var(--warning); }
+        .toast.error { border-color: var(--danger); }
+        .toast.music { border-color: var(--primary); }
+
+        @keyframes toastIn { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
+        @keyframes toastOut { to { opacity: 0; transform: translateY(8px) scale(0.97); } }
+
+        #confetti-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .spark {
+            position: fixed;
+            z-index: 9998;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkFly 0.68s ease-out forwards;
+        }
+        @keyframes sparkFly {
+            from { opacity: 1; transform: translate(0, 0) scale(1); }
+            to { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.2); }
+        }
+
+        .yt-wrap { position: fixed; left: -9999px; top: 0; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+
+        /* ============================================================
+           12. TẮT HIỆU ỨNG / GIẢM CHUYỂN ĐỘNG
+           ============================================================ */
+        html.effects-off .orb,
+        html.effects-off .ai-notice::after { animation: none !important; }
+        html.effects-off .cursor-glow { display: none !important; }
+        html.effects-off .question-card:hover { transform: none; }
+        html.effects-off .option:hover { transform: none; }
+        html.effects-off *,
+        html.effects-off *::before,
+        html.effects-off *::after {
+            animation-duration: 0s !important;
+            animation-delay: 0s !important;
+            transition-duration: 0.15s !important;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .orb, .ai-notice::after, .cursor-glow { animation: none !important; }
+            .cursor-glow { display: none !important; }
+            *, *::before, *::after {
+                animation-duration: 0.001s !important;
+                animation-delay: 0s !important;
+                transition-duration: 0.001s !important;
+            }
+        }
+
+        /* ============================================================
+           13. RESPONSIVE
+           ============================================================ */
+        @media (max-width: 1100px) {
+            main.shell { grid-template-columns: minmax(0, 1fr) 310px; gap: 16px; }
+        }
+
+        @media (max-width: 1023px) {
+            .timer, .header-submit { display: none; }
+            .title-full { display: none; }
+            .title-short { display: inline; }
+
+            .card { -webkit-backdrop-filter: none; backdrop-filter: none; }
+            .orb { filter: blur(70px); }
+
+            main.shell {
+                grid-template-columns: 1fr;
+                padding: 16px 14px 104px;
+                gap: 14px;
+            }
+
+            .question-card { scroll-margin-top: 80px; }
+
+            .sidebar {
+                position: fixed;
+                left: 0; right: 0; bottom: 0; top: auto;
+                z-index: 70;
+                max-height: 86svh;
+                padding: 14px 14px calc(18px + env(safe-area-inset-bottom));
+                border-radius: 26px 26px 0 0;
+                border: 1px solid var(--border);
+                border-bottom: 0;
+                background: var(--bg);
+                box-shadow: var(--shadow-lg);
+                transform: translateY(106%);
+                transition: transform 0.36s cubic-bezier(0.22, 0.8, 0.25, 1);
+                overflow-y: auto;
+            }
+            .sidebar.open { transform: translateY(0); }
+
+            .sidebar-head {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 3px 2px;
+                font-size: 13px;
+                font-weight: 800;
+            }
+            .sidebar-head .icon-btn { width: 34px; height: 34px; background: var(--surface-soft); }
+
+            .palette { grid-template-columns: repeat(8, minmax(0, 1fr)); max-height: 190px; }
+
+            .mobile-bar {
+                position: fixed;
+                left: 10px; right: 10px;
+                bottom: calc(10px + env(safe-area-inset-bottom));
+                z-index: 60;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 7px 9px;
+                border-radius: 18px;
+                border: 1px solid var(--border);
+                background: var(--header-bg);
+                -webkit-backdrop-filter: blur(18px);
+                backdrop-filter: blur(18px);
+                box-shadow: var(--shadow-lg);
+            }
+
+            .mobile-timer {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                flex: none;
+                font-size: 13.5px;
+                font-weight: 800;
+                font-variant-numeric: tabular-nums;
+                color: var(--text);
+            }
+            .mobile-timer svg { width: 15px; height: 15px; color: var(--warning); }
+            .mobile-timer.warning { color: var(--danger); animation: pulseText 1.4s ease-in-out infinite; }
+            .mobile-timer.warning svg { color: var(--danger); }
+            @keyframes pulseText { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+            .mobile-progress { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+            .mobile-progress .track { height: 5px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+            .mobile-progress .track span { display: block; width: 0%; height: 100%; border-radius: 99px; background: var(--grad); transition: width 0.4s ease; }
+            .mobile-progress > span { font-size: 9.5px; font-weight: 700; color: var(--muted); }
+
+            .mobile-btn {
+                flex: none;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                height: 44px;
+                padding: 0 11px;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                background: var(--surface-soft);
+                color: var(--text);
+                font-size: 11px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .mobile-btn svg { width: 17px; height: 17px; }
+            .mobile-btn span { display: none; }
+            .mobile-btn.primary { background: var(--grad); border-color: transparent; color: #fff; box-shadow: 0 8px 18px -9px rgba(79, 70, 229, 0.9); }
+            .mobile-btn:active { transform: scale(0.96); }
+
+            .toast-stack { bottom: 84px; }
+
+            .footer { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+        }
+
+        @media (max-width: 640px) {
+            .topbar-inner { padding: 9px 12px; gap: 8px; }
+            .brand { gap: 8px; }
+            .brand-icon { width: 36px; height: 36px; border-radius: 11px; }
+            .brand-icon svg { width: 19px; height: 19px; }
+            .brand h1 { font-size: 12.5px; }
+            .brand p { display: none; }
+
+            .header-actions { gap: 6px; }
+            .tool-group { padding: 2px; gap: 0; border-radius: 12px; }
+            .icon-btn { width: 33px; height: 33px; border-radius: 9px; }
+            .icon-btn svg { width: 17px; height: 17px; }
+            .has-tip::after { display: none; }
+
+            main.shell { padding: 12px 11px 102px; }
+            .ai-notice { padding: 12px 13px; gap: 10px; border-radius: 15px; }
+            .ai-badge { width: 34px; height: 34px; border-radius: 10px; font-size: 11px; }
+            .ai-notice p { font-size: 11.5px; line-height: 1.55; }
+
+            .question-card { padding: 15px 14px; border-radius: 17px; }
+            .q-text { font-size: 14px; margin-bottom: 13px; }
+            .option { padding: 10px 11px; gap: 9px; border-radius: 12px; }
+            .option-key { width: 25px; height: 25px; border-radius: 8px; font-size: 10.5px; }
+            .option-text { font-size: 12.5px; line-height: 1.5; }
+            .explanation { padding: 11px 12px; }
+            .explanation p { font-size: 12px; }
+
+            .result-banner { flex-wrap: wrap; gap: 12px; padding: 16px; }
+            .result-emoji { font-size: 30px; }
+            .result-body { flex: 1 1 180px; }
+            .result-body h2 { font-size: 15.5px; }
+            .result-body p { font-size: 11.5px; }
+            .result-score-wrap { display: flex; align-items: center; gap: 10px; width: 100%; justify-content: space-between; }
+            .result-score { font-size: 30px; }
+            .result-score-label { margin: 0; }
+            .result-score-wrap .btn { padding: 8px 14px; font-size: 12px; }
+
+            .modal-actions { flex-direction: column-reverse; }
+        }
+
+        @media (max-width: 380px) {
+            .brand h1 { font-size: 11.5px; }
+            .icon-btn { width: 31px; height: 31px; }
+            .icon-btn svg { width: 16px; height: 16px; }
+            .mobile-btn { padding: 0 9px; }
+            .mobile-timer { font-size: 12.5px; }
+        }
+
+        /* Thanh cuộn đẹp cho Firefox */
+        * { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
+    </style>
+</head>
+<body>
+
+    <!-- NỀN HIỆU ỨNG -->
+    <div class="bg-scene" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+    <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
+
+    <!-- HEADER -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <div class="brand-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"></path>
+                        <path d="M9 12l2 2 4-4"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>
+                        <span class="title-full">ĐỀ KIỂM TRA GIỮA KỲ I · GDQPAN 12</span>
+                        <span class="title-short">GDQPAN 12 · Đề 301</span>
+                    </h1>
+                    <p>Mã đề 301 · 45 phút · 40 câu trắc nghiệm</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="timer" id="timer-box" title="Thời gian còn lại">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 7v5l3 2"></path>
+                    </svg>
+                    <span class="timer-label">Còn lại</span>
+                    <span class="timer-value" id="time-remaining">45:00</span>
+                </div>
+
+                <div class="tool-group" role="group" aria-label="Cài đặt giao diện và âm thanh">
+                    <button type="button" class="icon-btn has-tip" id="theme-toggle" onclick="toggleTheme()" aria-label="Chuyển chế độ sáng tối" data-tip="Sáng / Tối">
+                        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"></path>
+                        </svg>
+                        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+                        </svg>
+                    </button>
+
+                    <button type="button" class="icon-btn has-tip" id="effects-toggle" onclick="toggleEffects()" aria-label="Bật hoặc tắt hiệu ứng" aria-pressed="true" data-tip="Hiệu ứng">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 3l1.9 4.8L19 9.7l-4.1 3 .9 5.1-3.8-2.7-3.8 2.7.9-5.1-4.1-3 5.1-1.9L12 3z"></path>
+                            <path d="M19 17l.7 1.8L21.5 19l-1.8.7L19 21.5l-.7-1.8L16.5 19l1.8-.7L19 17z"></path>
+                        </svg>
+                        <span class="dot" aria-hidden="true"></span>
+                    </button>
+
+                    <button type="button" class="icon-btn has-tip" id="sfx-toggle" onclick="toggleSfx()" aria-label="Bật hoặc tắt âm thanh khi chọn" aria-pressed="true" data-tip="Âm thanh chọn">
+                        <svg class="sfx-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M11 5L6 9H3v6h3l5 4V5z"></path>
+                            <path d="M15.5 8.5a5 5 0 010 7"></path>
+                            <path d="M18.5 5.5a9 9 0 010 13"></path>
+                        </svg>
+                        <svg class="sfx-icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M11 5L6 9H3v6h3l5 4V5z"></path>
+                            <path d="M16 9l5 6M21 9l-5 6"></path>
+                        </svg>
+                    </button>
+
+                    <button type="button" class="icon-btn music-btn has-tip" id="music-toggle" onclick="toggleMusic()" aria-label="Bật hoặc tắt nhạc nền" aria-pressed="false" data-tip="Nhạc nền Lofi">
+                        <svg class="music-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9 18V6l10-2v12"></path>
+                            <circle cx="6" cy="18" r="3"></circle>
+                            <circle cx="16" cy="16" r="3"></circle>
+                        </svg>
+                        <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                    </button>
+                </div>
+
+                <button type="button" class="btn btn-primary header-submit" id="submit-btn" onclick="confirmSubmit()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Nộp bài</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <main class="shell">
+        <section class="questions-col">
+            <div class="ai-notice" role="note">
+                <div class="ai-badge" aria-hidden="true">AI</div>
+                <p>Đây Là Đáp Án Được Trích Xuất Từ AI, Các Bạn Tự Kiểm Tra Nếu Sai Thì Báo Mình, Mình Sửa. <strong>Danh Cảm Ơn !</strong></p>
+            </div>
+
+            <div id="result-banner" class="result-banner hidden" role="status" aria-live="polite">
+                <div class="result-emoji" id="result-emoji">🎉</div>
+                <div class="result-body">
+                    <h2 id="result-title">Hoàn thành bài thi!</h2>
+                    <p id="result-summary">Bạn trả lời đúng 0/40 câu.</p>
+                    <div class="result-chips">
+                        <span class="rchip">Đúng: <b id="r-correct">0</b></span>
+                        <span class="rchip">Sai: <b id="r-wrong">0</b></span>
+                        <span class="rchip">Bỏ trống: <b id="r-empty">0</b></span>
+                    </div>
+                </div>
+                <div class="result-score-wrap">
+                    <div>
+                        <div class="result-score" id="result-score">0.0</div>
+                        <div class="result-score-label">trên 10 điểm</div>
+                    </div>
+                    <button type="button" class="btn btn-light" onclick="resetExam()">Làm lại</button>
+                </div>
+            </div>
+
+            <div id="questions-container" class="questions"></div>
+
+            <div class="end-note">— Hết đề — Chúc các bạn ôn tập hiệu quả và làm bài thật tốt! —</div>
+        </section>
+
+        <!-- SIDEBAR / BẢNG ĐIỀU KHIỂN -->
+        <aside class="sidebar" id="sidebar" aria-label="Bảng điều khiển bài thi">
+            <div class="sidebar-head">
+                <span>Bảng điều khiển</span>
+                <button type="button" class="icon-btn" onclick="closeSidebar()" aria-label="Đóng bảng điều khiển">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Tiến độ -->
+            <div class="card">
+                <div class="card-head">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 19V5M4 19h16"></path>
+                            <path d="M8 16v-4M12 16V8M16 16v-7"></path>
+                        </svg>
+                        Tiến độ làm bài
+                    </h3>
+                    <span class="pill" id="answered-counter">0/40</span>
+                </div>
+                <div class="progress-track"><span id="progress-fill"></span></div>
+                <p class="hint" id="progress-hint">Bạn chưa trả lời câu nào. Bắt đầu làm bài nhé!</p>
+            </div>
+
+            <!-- Thông tin thí sinh -->
+            <div class="card">
+                <div class="card-head">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="8" r="4"></circle>
+                            <path d="M4 21a8 8 0 0116 0"></path>
+                        </svg>
+                        Thông tin thí sinh
+                    </h3>
+                </div>
+                <div class="field">
+                    <label for="student-name">Họ và tên học sinh</label>
+                    <input type="text" id="student-name" placeholder="Nhập họ và tên..." autocomplete="name">
+                </div>
+                <div class="field">
+                    <label for="student-class">Lớp</label>
+                    <input type="text" id="student-class" placeholder="VD: 12A1" autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Danh sách câu hỏi -->
+            <div class="card">
+                <div class="card-head">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                        Danh sách câu hỏi
+                    </h3>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-dot answered"></span>Đã làm</div>
+                    <div class="legend-item"><span class="legend-dot empty"></span>Chưa làm</div>
+                    <div class="legend-item"><span class="legend-dot correct"></span>Đúng</div>
+                    <div class="legend-item"><span class="legend-dot wrong"></span>Sai</div>
+                </div>
+
+                <div id="palette-grid" class="palette"></div>
+
+                <div class="sidebar-submit">
+                    <button type="button" class="btn btn-primary btn-block" onclick="confirmSubmit()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Nộp bài &amp; xem giải chi tiết
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kết quả -->
+            <div id="score-card" class="card score-card hidden">
+                <div class="card-head">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z"></path>
+                            <path d="M7 5H4v2a3 3 0 003 3M17 5h3v2a3 3 0 01-3 3"></path>
+                        </svg>
+                        Kết quả bài làm
+                    </h3>
+                </div>
+                <div class="score-ring" id="score-ring" style="--p: 0">
+                    <div>
+                        <b id="score-display">0/40</b>
+                        <span>câu đúng</span>
+                    </div>
+                </div>
+                <p class="score-detail" id="score-detail">Điểm: 0.00 / 10</p>
+                <button type="button" class="btn btn-light btn-block" onclick="resetExam()">Làm lại bài thi</button>
+            </div>
+
+            <!-- Nhạc nền -->
+            <div class="card">
+                <div class="music-head">
+                    <div class="music-art" aria-hidden="true">🎧</div>
+                    <div>
+                        <h3>Lofi Chill</h3>
+                        <p id="music-status">Nhạc nền thư giãn khi làm bài</p>
+                    </div>
+                    <button type="button" class="play-btn" id="music-play" onclick="toggleMusic()" aria-label="Phát nhạc nền">
+                        <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+                        <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>
+                    </button>
+                </div>
+                <div class="volume-row">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M11 5L6 9H3v6h3l5 4V5z"></path>
+                        <path d="M15.5 8.5a5 5 0 010 7"></path>
+                    </svg>
+                    <input type="range" id="music-volume" min="0" max="100" step="1" value="35" aria-label="Âm lượng nhạc nền">
+                    <span id="volume-label">35%</span>
+                </div>
+                <p class="music-note-text">Chạm nút phát để bật nhạc nền. Bạn có thể tắt bất cứ lúc nào.</p>
+            </div>
+        </aside>
+    </main>
+
+    <!-- OVERLAY CHO DRAWER -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- THANH ĐIỀU KHIỂN DI ĐỘNG -->
+    <div class="mobile-bar" role="toolbar" aria-label="Điều khiển nhanh">
+        <div class="mobile-timer" id="mobile-timer-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7v5l3 2"></path>
+            </svg>
+            <span id="time-remaining-mobile">45:00</span>
+        </div>
+        <div class="mobile-progress">
+            <div class="track"><span id="mobile-progress-fill"></span></div>
+            <span id="mobile-answered">0/40</span>
+        </div>
+        <button type="button" class="mobile-btn" onclick="openSidebar()" aria-label="Mở danh sách câu hỏi">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+            <span>Danh sách</span>
+        </button>
+        <button type="button" class="mobile-btn primary" id="mobile-submit-btn" onclick="confirmSubmit()" aria-label="Nộp bài">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>Nộp bài</span>
+        </button>
+    </div>
+
+    <!-- MODAL XÁC NHẬN -->
+    <div id="confirm-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-backdrop" onclick="closeModal()"></div>
+        <div class="modal-card">
+            <div class="modal-icon" aria-hidden="true">!</div>
+            <h3 id="modal-title">Xác nhận nộp bài?</h3>
+            <p id="modal-msg">Bạn vẫn còn câu hỏi chưa hoàn thành. Bạn có chắc chắn muốn nộp bài và xem giải chi tiết không?</p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="closeModal()">Tiếp tục làm bài</button>
+                <button type="button" class="btn btn-primary" onclick="submitExam()">Nộp bài ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <p>Hệ thống trắc nghiệm GDQPAN 12 · Mã đề 301 · Giao diện và hiệu ứng được tối ưu cho điện thoại lẫn máy tính.</p>
+            <p class="footer-ai">Đáp án do AI trích xuất — các bạn tự kiểm tra lại. Nếu sai, báo mình để mình sửa. Danh cảm ơn!</p>
+        </div>
+    </footer>
+
+    <!-- TIỆN ÍCH -->
+    <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+    <div class="yt-wrap" aria-hidden="true"><div id="yt-player"></div></div>
+    <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+    <script>
+        const questionsData = [
+            {
+                id: 1,
+                question: "Thách thức an ninh phi truyền thống nào đang đe dọa trực tiếp đến sự nghiệp bảo vệ Tổ quốc hiện nay?",
+                options: [
+                    "An ninh mạng, biến đổi khí hậu, dịch bệnh, tội phạm xuyên quốc gia.",
+                    "Sự suy giảm số lượng các loài động vật hoang dã.",
+                    "Cuộc cạnh tranh thương mại giữa các tập đoàn bán lẻ.",
+                    "Hiện tượng đô thị hóa diễn ra nhanh chóng tại các thành phố."
+                ],
+                correct: 0,
+                explanation: "An ninh phi truyền thống bao gồm các thách thức mang tính toàn cầu như an ninh mạng, biến đổi khí hậu, dịch bệnh nguy hiểm, khủng bố, tội phạm xuyên quốc gia... đe dọa trực tiếp đến sự ổn định và an ninh quốc gia."
+            },
+            {
+                id: 2,
+                question: "Thái độ đúng đắn của học sinh khi học tập về cơ cấu tổ chức QĐND và CAND Việt Nam?",
+                options: [
+                    "Tự hào, nắm vững chức năng nhiệm vụ và có ý thức định hướng nghề nghiệp.",
+                    "Chê bai các đơn vị quân đội là thiếu hiện đại.",
+                    "Khuyên bạn bè không nên đăng ký thi vào các trường LLVT.",
+                    "Học đối phó để vượt qua bài kiểm tra GDQP&AN."
+                ],
+                correct: 0,
+                explanation: "Học sinh cần có thái độ tự hào, trân trọng, nắm vững kiến thức chức năng nhiệm vụ của LLVT để có ý thức rèn luyện và định hướng nghề nghiệp đúng đắn."
+            },
+            {
+                id: 3,
+                question: "Yêu cầu đặt ra đối với việc xây dựng lực lượng Công an nhân dân 'Cách mạng, chính quy, tinh nhuệ, hiện đại' đến năm 2030?",
+                options: [
+                    "Tuyệt đối không hợp tác quốc tế với công an các nước khác.",
+                    "Thay thế hoàn toàn vai trò của các cơ quan tư pháp Tòa án.",
+                    "Trở thành lực lượng quản lý toàn bộ hoạt động kinh tế đất nước.",
+                    "Tiến thẳng lên hiện đại, làm nòng cốt giữ vững ANQG và trật tự an toàn xã hội."
+                ],
+                correct: 3,
+                explanation: "Mục tiêu xây dựng CAND đến năm 2030 là tiến thẳng lên hiện đại, làm nòng cốt giữ vững an ninh quốc gia và trật tự an toàn xã hội."
+            },
+            {
+                id: 4,
+                question: "Cơ quan đảm nhiệm công tác Đảng, công tác chính trị trong toàn quân là cơ quan nào?",
+                options: [
+                    "Tổng cục Chính trị Quân đội nhân dân Việt Nam.",
+                    "Tổng cục Công nghiệp Quốc phòng.",
+                    "Tổng cục Tình báo Quân đội nhân dân.",
+                    "Bộ Tổng Tham mưu Quân đội nhân dân Việt Nam."
+                ],
+                correct: 0,
+                explanation: "Tổng cục Chính trị Quân đội nhân dân Việt Nam là cơ quan đảm nhiệm công tác Đảng, công tác chính trị trong toàn quân dưới sự lãnh đạo của Ban Chấp hành Trung ương mà trực tiếp, thường xuyên là Quân ủy Trung ương."
+            },
+            {
+                id: 5,
+                question: "Sự kết hợp giữa sức mạnh dân tộc với sức mạnh thời đại trong sự nghiệp bảo vệ Tổ quốc hiện nay thể hiện như thế nào?",
+                options: [
+                    "Phát huy nội lực dân tộc kết hợp tranh thủ sự ủng hộ quốc tế và luật pháp quốc tế.",
+                    "Phụ thuộc hoàn toàn vào sự bảo hộ quân sự của nước lớn.",
+                    "Giao toàn bộ công tác bảo vệ biên giới cho quốc tế.",
+                    "Chỉ dựa vào sức mạnh nội lực, cấm hợp tác quốc tế."
+                ],
+                correct: 0,
+                explanation: "Kết hợp sức mạnh dân tộc với sức mạnh thời đại nghĩa là phải lấy sức mạnh nội lực của dân tộc làm gốc, đồng thời chủ động hội nhập, tranh thủ sự đồng tình, ủng hộ của cộng đồng quốc tế và luật pháp quốc tế."
+            },
+            {
+                id: 6,
+                question: "Cuộc chiến tranh bảo vệ biên giới Tây Nam của Tổ quốc diễn ra trong bối cảnh lực lượng phản động nào?",
+                options: [
+                    "Lực lượng quân đội phát-xít xâm lược.",
+                    "Tập đoàn quân phiệt phương Tây.",
+                    "Tập đoàn phản động Pol Pot (Khmer Đỏ).",
+                    "Lực lượng thổ phỉ đán xâm lược hải đảo."
+                ],
+                correct: 0,
+                explanation: "Chiến tranh bảo vệ biên giới Tây Nam là cuộc chiến đấu chống lại tập đoàn phản động Pol Pot - Khmer Đỏ xâm phạm chủ quyền lãnh thổ Việt Nam."
+            },
+            {
+                id: 7,
+                question: "Để góp phần xây dựng thế trận quốc phòng toàn dân vững mạnh, học sinh cần rèn luyện phẩm chất gì?",
+                options: [
+                    "Lòng tham nỗ lực làm giàu bằng mọi giá bất chấp luật pháp.",
+                    "Sự hiếu chiến và thích gây gỗ đánh nhau.",
+                    "Tính ích kỷ chỉ quan tâm đến lợi ích bản thân.",
+                    "Tinh thần yêu nước, tính kỷ luật, lòng nhân ái và tinh thần đoàn kết."
+                ],
+                correct: 3,
+                explanation: "Học sinh rèn luyện tinh thần yêu nước, ý thức kỷ luật, đạo đức tốt và tinh thần đoàn kết để góp phần xây dựng nền quốc phòng toàn dân vững mạnh."
+            },
+            {
+                id: 8,
+                question: "Vì sao việc xây dựng các Nhà giàn DK1 có tầm quan trọng đặc biệt đối với chiến lược lược biển?",
+                options: [
+                    "Để dự báo thời tiết cho các quốc gia trong khu vực.",
+                    "Nhằm mục đích làm nơi nghỉ dưỡng cho cán bộ chiến sĩ.",
+                    "Để kinh doanh các dịch vụ hàng hải quốc tế tự do.",
+                    "Là cột mốc chủ quyền sống trên biển, chốt giữ thêm lục địa phía Nam Tổ quốc."
+                ],
+                correct: 3,
+                explanation: "Các nhà giàn DK1 trên thềm lục địa phía Nam đóng vai trò như những cột mốc chủ quyền kiên cố trên biển, khẳng định và bảo vệ vùng thềm lục địa thiêng liêng của Tổ quốc."
+            },
+            {
+                id: 9,
+                question: "Bạn Nam (học sinh lớp 12) muốn đăng ký thi vào Học viện An ninh nhân dân nhưng bị cận thị 1.5 điop. Nam nên làm gì?",
+                options: [
+                    "Sử dụng kính áp tròng giấu kín khi đi khám sức khỏe sơ tuyển.",
+                    "Tự mua các loại thuốc nhỏ mắt trên mạng để chữa cận thị.",
+                    "Tìm hiểu kỹ quy định tuyển sinh về thị lực, tiến hành mổ mắt nếu được phép.",
+                    "Bỏ qua quy định, cứ đăng ký thi rồi nhờ người xin giúp."
+                ],
+                correct: 2,
+                explanation: "Các trường Công an/Quân đội có tiêu chuẩn rất khắt khe về thị lực. Thí sinh cần tìm hiểu kỹ quy định và có thể thực hiện phẫu thuật khúc xạ (mổ mắt) trước khi sơ tuyển theo đúng quy chế cho phép."
+            },
+            {
+                id: 10,
+                question: "Thủ tục bắt buộc hàng đầu đối với thí sinh muốn dự tuyển vào các trường Quân đội, Công an là gì?",
+                options: [
+                    "Phải hoàn thành nghĩa vụ quân sự tại ngũ trước.",
+                    "Phải có giấy cam kết nộp tiền học phí đầy đủ.",
+                    "Phải qua bước đăng ký sơ tuyển tại địa phương.",
+                    "Phải nộp bằng tốt nghiệp Đại học trước khi đăng ký."
+                ],
+                correct: 2,
+                explanation: "Thủ tục sơ tuyển tại Ban Chỉ huy quân sự cấp huyện hoặc Công an cấp xã/huyện là bắt buộc trước khi thí sinh đăng ký dự thi vào các trường đại học, học viện quân sự và công an."
+            },
+            {
+                id: 11,
+                question: "Học viện chuyên đào tạo sĩ quan bác sĩ quân y cho toàn quân là trường nào?",
+                options: [
+                    "Học viện Kỹ thuật Quân sự.",
+                    "Học viện Hậu cần Quân đội.",
+                    "Học viện Khoa học Quân sự.",
+                    "Học viện Quân y Việt Nam."
+                ],
+                correct: 3,
+                explanation: "Học viện Quân y là trường đại học trọng điểm quốc gia, trực thuộc Bộ Quốc phòng, chuyên đào tạo bác sĩ, dược sĩ quân y và dân y."
+            },
+            {
+                id: 12,
+                question: "Lực lượng nòng cốt chuyên trách quản lý, bảo vệ chủ quyền, an ninh biên giới quốc gia là lực lượng nào?",
+                options: [
+                    "Cảnh sát biển Việt Nam.",
+                    "Cảnh sát cơ động Bộ Công an.",
+                    "Hải quân nhân dân Việt Nam.",
+                    "Bộ đội Biên phòng Việt Nam."
+                ],
+                correct: 3,
+                explanation: "Bộ đội Biên phòng là lực lượng vũ trang nòng cốt, chuyên trách quản lý và bảo vệ chủ quyền, an ninh biên giới quốc gia trên đất liền, các hải đảo và vùng biển."
+            },
+            {
+                id: 13,
+                question: "Phân tích ý nghĩa chiến lược của quan điểm 'Bảo vệ Tổ quốc từ sớm, từ xa, giữ nước từ khi nước chưa nguy' trong thời đại số?",
+                options: [
+                    "Chủ động nắm bắt tình hình, phát triển tiềm lực toàn diện và triệt tiêu nguy cơ từ gốc.",
+                    "Chỉ tập trung xây dựng lực lượng quân đội thường trực khủng.",
+                    "Khép kín nền kinh tế không giao thương hợp tác với quốc tế.",
+                    "Tăng cường chạy đua vũ trang để đe dọa các quốc gia khác."
+                ],
+                correct: 0,
+                explanation: "Bảo vệ Tổ quốc từ sớm, từ xa nghĩa là chủ động phòng ngừa, phát hiện sớm các nguy cơ, xây dựng tiềm lực vững mạnh để ngăn ngừa chiến tranh từ khi chưa xảy ra."
+            },
+            {
+                id: 14,
+                question: "Tiêu chuẩn về chính trị đối với thí sinh dự tuyển vào các trường Quân đội, Công an quy định ra sao?",
+                options: [
+                    "Chỉ cần cá nhân thí sinh không có tiền án tiền sự.",
+                    "Thí sinh và gia đình phải có lý lịch chính trị rõ ràng, tin cậy.",
+                    "Ưu tiên thí sinh có thân nhân sống ở nước ngoài.",
+                    "Không xem xét lý lịch chính trị của gia đình thí sinh."
+                ],
+                correct: 1,
+                explanation: "Tiêu chuẩn chính trị đòi hỏi bản thân thí sinh và gia đình (cha mẹ, người nuôi dưỡng trực tiếp) phải có lý lịch chính trị trong sạch, chấp hành tốt chủ trương, đường lối của Đảng và pháp luật Nhà nước."
+            },
+            {
+                id: 15,
+                question: "Sau đại thắng Mùa Xuân năm 1975, Tổ quốc Việt Nam rơi vào bối cảnh lịch sử nào?",
+                options: [
+                    "Tổ quốc hoàn toàn độc lập, thống nhất và đi lên chủ nghĩa xã hội.",
+                    "Tổ quốc rơi vào khủng hoảng chính trị suy vong hoàn toàn.",
+                    "Tổ quốc phải đối mặt với chiến tranh thế giới lần thứ ba.",
+                    "Tổ quốc tiếp tục bị chia cắt thành hai miền Nam Bắc."
+                ],
+                correct: 0,
+                explanation: "Năm 1975, miền Nam được giải phóng hoàn toàn, non sông liền một dải, cả nước bước vào kỷ nguyên độc lập, thống nhất và xây dựng chủ nghĩa xã hội."
+            },
+            {
+                id: 16,
+                question: "Mối quan hệ giữa Cảnh sát biển Việt Nam và Bộ đội Biên phòng Việt Nam trong thực hiện nhiệm vụ?",
+                options: [
+                    "Phối hợp quản lý, bảo vệ chủ quyền và an ninh trật tự trên biển và biên giới.",
+                    "Cảnh sát biển phụ thuộc hoàn toàn vào chỉ đạo của Bộ đội Biên phòng.",
+                    "Bộ đội Biên phòng chỉ quản lý vùng trời; Cảnh sát biển quản lý đất liền.",
+                    "Hai lực lượng hoạt động độc lập không bao giờ chia sẻ thông tin."
+                ],
+                correct: 0,
+                explanation: "Cảnh sát biển và Bộ đội Biên phòng phối hợp chặt chẽ trong việc thực thi pháp luật, bảo vệ chủ quyền, an ninh trật tự trên vùng biển và khu vực biên giới."
+            },
+            {
+                id: 17,
+                question: "Tầm quan trọng của Cảnh sát cơ động trong hệ thống lực lượng Công an nhân dân?",
+                options: [
+                    "Lực lượng chuyên cấp hộ chiếu và thị thực xuất nhập cảnh.",
+                    "Lực lượng chuyên trách hướng dẫn đăng ký hộ khẩu thường trú.",
+                    "Lực lượng kiểm tra an toàn PCCC tại các hộ gia đình.",
+                    "Lực lượng vũ trang tinh nhuệ, sẵn sàng ra quân trấn áp tội phạm nguy hiểm."
+                ],
+                correct: 3,
+                explanation: "Cảnh sát cơ động là lực lượng vũ trang chiến đấu tập trung, tinh nhuệ, được trang bị vũ khí hiện đại để xử lý nhanh các tình huống phức tạp về an ninh trật tự."
+            },
+            {
+                id: 18,
+                question: "Ý nghĩa của việc bố trí Công an xã chính quy trên phạm vi toàn quốc?",
+                options: [
+                    "Tạo thêm vị trí việc làm cho người dân địa phương thất nghiệp.",
+                    "Giảm bớt ngân sách chi cho công an cấp quận huyện.",
+                    "Bắt buộc toàn bộ người dân xã phải đăng ký tài khoản ngân hàng.",
+                    "Tăng cường bám sát địa bàn, giữ vững an ninh trật tự ngay từ cơ sở."
+                ],
+                correct: 3,
+                explanation: "Việc đưa công an chính quy về xã giúp giải quyết kịp thời, bám sát địa bàn cơ sở, đảm bảo tuyệt đối an ninh trật tự ngay từ gốc."
+            },
+            {
+                id: 19,
+                question: "Ý thức tự giác tuân thủ Kỷ luật quân đội trong giờ học thực hành GDQP&AN thể hiện qua điều gì?",
+                options: [
+                    "Nghỉ giải lao tự do mà không xin phép giáo viên.",
+                    "Trang phục gọn gàng, chấp hành hiệu lệnh chỉ huy và bảo quản vũ khí.",
+                    "Tự do đi lại trong thao trường không theo đội hình.",
+                    "Đùa nghịch chĩa súng tập vào các bạn xung quanh."
+                ],
+                correct: 1,
+                explanation: "Trong học tập thực hành GDQP&AN, học sinh cần chấp hành nghiêm điều lệnh, trang phục gọn gàng, tuân thủ tuyệt đối mệnh lệnh chỉ huy và quy tắc an toàn."
+            },
+            {
+                id: 20,
+                question: "Mục đích của việc quy định chặt chẽ về cấp hiệu, phù hiệu trong Lực lượng vũ trang?",
+                options: [
+                    "Để phản ánh mức độ giàu nghèo của từng cán bộ chiến sĩ.",
+                    "Nhằm làm đẹp trang phục cá nhân khi tham gia lễ hội.",
+                    "Để cấm cán bộ chiến sĩ không được tiếp xúc với nhân dân.",
+                    "Để thể hiện tính chính quy, phân định cấp bậc và thuận tiện cho chỉ huy."
+                ],
+                correct: 3,
+                    explanation: "Cấp hiệu, phù hiệu và quân hàm giúp phân định rõ chức vụ, cấp bậc quân hàm, thể hiện tính chính quy và thống nhất của lực lượng vũ trang."
+            },
+            {
+                id: 21,
+                question: "Hiện nay kẻ xấu lập các group giả mạo tuyển sinh công an để thu thập dữ liệu cá nhân thí sinh. Năng lực số (NLS 12.A3, 12.B1), em làm gì?",
+                options: [
+                    "Rủ tất cả các bạn tham gia group giả mạo.",
+                    "Nộp tiền lệ phí tuyển sinh thử qua tài khoản cá nhân.",
+                    "Cung cấp đầy đủ số CCCD và mã OTP cho chủ group.",
+                    "Bảo mật dữ liệu cá nhân, tra cứu kênh chuẩn và báo cáo hành vi giả mạo."
+                ],
+                correct: 3,
+                explanation: "Học sinh có năng lực số cần biết bảo vệ thông tin cá nhân, chỉ tra cứu thông tin tuyển sinh qua các kênh chính thống của Bộ Công an/Bộ Quốc phòng và báo cáo các hành vi lừa đảo."
+            },
+            {
+                id: 22,
+                question: "Vì sao trận chiến bảo vệ cao điểm Vị Xuyên (Hà Giang) được coi là một trong những trang sử bi hùng nhất?",
+                options: [
+                    "Vì bộ đội ta chiến đấu không có sự chỉ đạo của cấp trên.",
+                    "Bộ đội ta chiến đấu kiên cường 'Sống bám đá, chết hóa đá' bảo vệ từng tấc đất.",
+                    "Vì đây là trận chiến duy nhất sử dụng vũ khí hạt nhân.",
+                    "Vì trận chiến diễn ra hoàn toàn trên mặt biển sâu."
+                ],
+                correct: 1,
+                explanation: "Mặt trận Vị Xuyên ghi dấu ấn oanh liệt với tinh thần quả cảm 'Sống bám đá đánh giặc, chết hóa đá bất tử' của cán bộ, chiến sĩ ta bảo vệ vững chắc biên cương."
+            },
+            {
+                id: 23,
+                question: "Quyền lợi của sĩ quan quân sau khi tốt nghiệp các trường Quân đội, Công an?",
+                options: [
+                    "Được phong quân hàm sĩ quan, hưởng lương và các chế độ phụ cấp.",
+                    "Được quyền kinh doanh bất động sản tự do.",
+                    "Được miễn thực hiện kỷ luật lực lượng vũ trang.",
+                    "Được cấp nhà ở miễn phí ngay tại trung tâm Hà Nội."
+                ],
+                correct: 0,
+                explanation: "Tốt nghiệp các trường sĩ quan LLVT, học viên được phong quân hàm cấp bậc tương ứng, được phân công công tác, nhận lương và hưởng các chính sách ưu đãi theo luật định."
+            },
+            {
+                id: 24,
+                question: "Hiện nay Quân đội nhân dân Việt Nam có mấy Quân khu địa bàn?",
+                options: [
+                    "Gồm có 9 Quân khu địa bàn trọng điểm.",
+                    "Gồm có 7 Quân khu và Bộ Tư lệnh Thủ đô Hà Nội.",
+                    "Gồm có 5 Quân khu tổ chức trên toàn quốc.",
+                    "Gồm có 10 Quân khu hành chính."
+                ],
+                correct: 1,
+                explanation: "Quân khu của QĐND Việt Nam gồm 7 quân khu (Quân khu 1, 2, 3, 4, 5, 7, 9) và Bộ Tư lệnh Thủ đô Hà Nội."
+            },
+            {
+                id: 25,
+                question: "Trường Đại học hàng đầu đào tạo sĩ quan Công an nhân dân ở phía Bắc là trường nào?",
+                options: [
+                    "Học viện Trinh sát Công an.",
+                    "Học viện An ninh nhân dân.",
+                    "Học viện Cảnh sát nhân dân và Học viện An ninh nhân dân.",
+                    "Trường Sĩ quan Công an nhân dân."
+                ],
+                correct: 2,
+                explanation: "Ở phía Bắc, Học viện An ninh nhân dân và Học viện Cảnh sát nhân dân là hai trung tâm đào tạo đại học trọng điểm hàng đầu của lực lượng CAND."
+            },
+            {
+                id: 26,
+                question: "Hệ thống quân hàm sĩ quan Quân đội nhân dân gồm có bao nhiêu cấp bậc?",
+                options: [
+                    "Gồm 15 cấp bậc quân hàm.",
+                    "Gồm 10 cấp bậc quân hàm.",
+                    "Gồm 12 cấp bậc quân hàm từ Ủy đến Tướng.",
+                    "Gồm 8 cấp bậc quân hàm."
+                ],
+                correct: 2,
+                explanation: "Hệ thống quân hàm sĩ quan QĐNDVN gồm 12 cấp bậc chia thành 3 cấp: cấp Úy (4 bậc), cấp Tá (4 bậc), cấp Tướng (4 bậc)."
+            },
+            {
+                id: 27,
+                question: "Vì sao thí sinh trúng tuyển trường Quân đội không phải nộp tiền học phí hằng năm?",
+                options: [
+                    "Vì các môn học quân sự không tốn chi phí giảng dạy.",
+                    "Vì các trường quân đội nhận viện trợ tài chính nước ngoài.",
+                    "Toàn bộ chi phí đào tạo, ăn ở do ngân sách Nhà nước đảm bảo.",
+                    "Vì các trường quân đội tự sản xuất kinh doanh có lãi lớn."
+                ],
+                correct: 2,
+                explanation: "Học viên học tại các trường quân đội được Nhà nước đài thọ toàn bộ chi phí đào tạo, ăn, mặc, ở và phụ cấp hàng tháng."
+            },
+            {
+                id: 28,
+                question: "Hành động nào dưới đây thể hiện ý thức chấp hành nghiêm túc nghĩa vụ bảo vệ Tổ quốc của học sinh?",
+                options: [
+                    "Rủ bạn bè chống đối lệnh gọi đăng ký nghĩa vụ quân sự.",
+                    "Học tốt môn GDQP&AN, chấp hành nghiêm túc Luật NVQS và đăng ký tuổi 17.",
+                    "Bỏ giờ học GDQP&AN để đi chơi các trò chơi điện tử.",
+                    "Tìm mọi cách xin giấy xác nhận giả để miễn tập luyện."
+                ],
+                correct: 1,
+                explanation: "Học sinh thể hiện trách nhiệm qua việc học tập tốt môn GDQP&AN và tham gia đăng ký nghĩa vụ quân sự tuổi 17 đúng quy định."
+            },
+            {
+                id: 29,
+                question: "Mục đích của việc quy định chiều cao, cân nặng đối với thí sinh dự tuyển?",
+                options: [
+                    "Để chọn lọc những người có ngoại hình làm người mẫu.",
+                    "Đảm bảo thể lực đáp ứng yêu cầu huấn luyện và tác chiến cường độ cao.",
+                    "Để hạn chế số lượng thí sinh đăng ký dự tuyển quá đông.",
+                    "Nhằm giảm bớt chi phí do quân phục cho học viên."
+                ],
+                correct: 1,
+                explanation: "Tiêu chuẩn về thể hình (chiều cao, cân nặng) nhằm đảm bảo quân nhân có đủ sức khỏe thực hiện nhiệm vụ huấn luyện, sẵn sàng chiến đấu trong môi trường khắc nghiệt."
+            },
+            {
+                id: 30,
+                question: "Thái độ đúng đắn của học sinh THPT khi ước mơ trở thành sĩ quan quân đội nhân dân?",
+                options: [
+                    "Nỗ lực học tập, rèn luyện sức khỏe, giữ gìn đạo đức và quyết tâm đuổi mục tiêu.",
+                    "Chờ đợi sự giúp đỡ nâng điểm từ người thân gia đình.",
+                    "Nghỉ học phổ thông để đi học võ thuật tự phát.",
+                    "Chỉ mở ước chịu học tập hay tập luyện thể thao."
+                ],
+                correct: 0,
+                explanation: "Ước mơ gắn liền với hành động thiết thực: học tập giỏi, rèn luyện thể lực và tu dưỡng đạo đức từ ghế nhà trường."
+            },
+            {
+                id: 31,
+                question: "Trách nhiệm của thí sinh trong quá trình khai báo hồ sơ đăng ký sơ tuyển?",
+                options: [
+                    "Khai man về chiều cao và cân nặng để đạt tiêu chuẩn.",
+                    "Khai báo trung thực, đầy đủ thông tin cá nhân và gia đình.",
+                    "Nhờ người khác đi khám sức khỏe thay mình.",
+                    "Cố tình che giấu các thông tin về tiền án tiền sự cá nhân."
+                ],
+                correct: 1,
+                explanation: "Thí sinh phải trung thực tuyệt đối trong kê khai hồ sơ lý lịch, sức khỏe và các thông tin cá nhân theo đúng cam kết pháp luật."
+            },
+            {
+                id: 32,
+                question: "Hành động nào của học sinh đóng góp trực tiếp vào việc bảo vệ an ninh thông tin cá nhân và an ninh mạng?",
+                options: [
+                    "Cho người lạ đăng nhập tài khoản mạng xã hội của mình.",
+                    "Bảo mật mật khẩu, không đăng tải thông tin nhạy cảm và báo cáo trang lừa đảo.",
+                    "Tham gia các diễn đàn chia sẻ dữ liệu cá nhân của người khác.",
+                    "Tải các phần mềm bẻ khóa không rõ nguồn gốc về máy tính."
+                ],
+                correct: 1,
+                explanation: "Bảo mật tài khoản, cảnh giác trước thông tin giả mạo và không chia sẻ dữ liệu nhạy cảm là cách thiết thực bảo vệ an ninh mạng."
+            },
+            {
+                id: 33,
+                question: "Ý nghĩa của các bước kiểm tra thể lực trong quy trình khám sơ tuyển NVQS và tuyển sinh quân sự?",
+                options: [
+                    "Nhằm loại bỏ những thí sinh không có năng khiếu văn nghệ.",
+                    "Để tìm ra những vận động viên thể thao chuyên nghiệp quốc gia.",
+                    "Để thu phí dịch vụ kiểm tra thể lực của thí sinh.",
+                    "Đánh giá sức bền, sự dẻo dai và khả năng thích ứng môi trường quân ngũ."
+                ],
+                correct: 3,
+                explanation: "Kiểm tra thể lực nhằm đánh giá khả năng vận động, sức bền và độ dẻo dai đáp ứng cường độ huấn luyện quân sự."
+            },
+            {
+                id: 34,
+                question: "Nhiệm vụ nòng cốt của lực lượng An ninh nhân dân là gì?",
+                options: [
+                    "Phòng cháy chữa cháy và cứu nạn cứu hộ.",
+                    "Đảm bảo trật tự an toàn giao thông đường bộ.",
+                    "Bảo vệ an ninh quốc gia, phát hiện chống gián điệp, phản động.",
+                    "Quản lý hành chính về trật tự xã hội."
+                ],
+                correct: 2,
+                explanation: "An ninh nhân dân là lực lượng nòng cốt trong bảo vệ an ninh quốc gia, đấu tranh phòng chống tội phạm xâm phạm an ninh quốc gia, gián điệp, phản động."
+            },
+            {
+                id: 35,
+                question: "Tên gọi tấm gương hy sinh kiên cường của 64 cán bộ chiến sĩ Hải quân tại Gạc Ma năm 1988 gắn liền với biểu tượng gì?",
+                options: [
+                    "Biểu tượng 'Thành cổ Quảng Trị kiên cường'.",
+                    "Biểu tượng 'Vòng tròn bất tử' bảo vệ cờ Tổ quốc.",
+                    "Biểu tượng 'Ngã ba Đồng Lộc anh hùng'.",
+                    "Biểu tượng 'Đường Hồ Chí Minh trên biển'."
+                ],
+                correct: 1,
+                explanation: "Sự kiện Gạc Ma 1988 gắn liền với tượng đài 'Vòng tròn bất tử' khi các chiến sĩ nắm chặt tay nhau tạo thành vòng tròn quyết tử bảo vệ lá cờ Tổ quốc."
+            },
+            {
+                id: 36,
+                question: "Khi phát hiện có đối tượng lạ đòi hỏi thông tin về vị trí đồn trú của các đơn vị quân đội, em xử lý thế nào?",
+                options: [
+                    "Cảnh giác, tuyệt đối không cung cấp thông tin và báo ngay cho công an.",
+                    "Chia sẻ vị trí đồn trú lên các hội nhóm Facebook công khai.",
+                    "Cung cấp đầy đủ dù thông tin để nhận tiền thưởng của đối tượng.",
+                    "Dẫn đối tượng đến tận cổng căn cứ quân sự để xem."
+                ],
+                correct: 0,
+                explanation: "Thông tin quân sự là bí mật quốc gia. Học sinh phải nâng cao cảnh giác, tuyệt đối bảo mật và thông báo cơ quan chức năng khi có kẻ dò la."
+            },
+            {
+                id: 37,
+                question: "Cơ quan chỉ huy tham mưu cao nhất của Quân đội nhân dân Việt Nam là cơ quan nào?",
+                options: [
+                    "Tổng cục Chính trị Quân đội nhân dân Việt Nam.",
+                    "Tổng cục Hậu cần Quân đội nhân dân Việt Nam.",
+                    "Bộ Tổng Tham mưu Quân đội nhân dân Việt Nam.",
+                    "Tổng cục Kỹ thuật Quân đội nhân dân Việt Nam."
+                ],
+                correct: 2,
+                explanation: "Bộ Tổng Tham mưu là cơ quan chỉ huy, điều hành cao nhất của QĐNDVN, tổ chức chỉ đạo toàn quân trong sẵn sàng chiến đấu và xây dựng lực lượng."
+            },
+            {
+                id: 38,
+                question: "Quân và dân ta chính thức hoàn thành thắng lợi cuộc chiến tranh bảo vệ biên giới Tây Nam vào thời gian nào?",
+                options: [
+                    "Tháng 10 năm 1991 sau Hiệp định Paris.",
+                    "Tháng 12 năm 1988 tại vùng biển Gạc Ma.",
+                    "Đầu năm 1979, giải phóng Phnom Pênh cứu nhân dân Campuchia.",
+                    "Tháng 4 năm 1975 sau chiến dịch Hồ Chí Minh."
+                ],
+                correct: 2,
+                explanation: "Đầu năm 1979, quân tình nguyện Việt Nam phối hợp lực lượng cách mạng Campuchia lật đổ tập đoàn diệt chủng Pol Pot, giải phóng Phnom Penh."
+            },
+            {
+                id: 39,
+                question: "Cơ quan quản lý nhà nước cao nhất về an ninh quốc gia và trật tự an toàn xã hội là cơ quan nào?",
+                options: [
+                    "Bộ Quốc phòng Việt Nam.",
+                    "Bộ Công an nước Cộng hòa xã hội chủ nghĩa Việt Nam.",
+                    "Tòa án nhân dân tối cao.",
+                    "Bộ Tư pháp Việt Nam."
+                ],
+                correct: 1,
+                explanation: "Bộ Công an là cơ quan của Chính phủ thực hiện quản lý nhà nước về an ninh quốc gia, trật tự an toàn xã hội và phòng chống tội phạm."
+            },
+            {
+                id: 40,
+                question: "Quân đội nhân dân Việt Nam hiện nay gồm có mấy Quân chủng chính?",
+                options: [
+                    "Gồm 4 Quân chủng: Lục quân, Hải quân, Không quân, Biên phòng.",
+                    "Gồm 2 Quân chủng chính: Hải quân và Phòng không - Không quân.",
+                    "Gồm 3 Quân chủng: Lục quân, Hải quân, Phòng không, Tỉnh báo, Cảnh sát biển.",
+                    "Gồm 5 Quân chủng: Lục quân, Hải quân, Hải quân, Phòng quân, Cảnh sát biển."
+                ],
+                correct: 1,
+                explanation: "Quân đội nhân dân Việt Nam có 2 Quân chủng chính thức thành lập là Quân chủng Hải quân và Quân chủng Phòng không - Không quân (Lục quân là lực lượng chủ lực nhưng tổ chức trực thuộc Bộ Quốc phòng/các quân khu chứ không phải là quân chủng độc lập riêng biệt)."
+            }
+];
+
+        /* =====================================================================
+           CẤU HÌNH NHẠC NỀN
+           ---------------------------------------------------------------------
+           Cách 1 (khuyên dùng): upload file .mp3 lên GitHub rồi dán link RAW vào
+           MUSIC.file. Ví dụ:
+               file: "https://raw.githubusercontent.com/tenban/repo/main/lofi.mp3"
+
+           Cách 2: để trống file và dùng video YouTube bên dưới.
+           ===================================================================== */
+        const MUSIC = {
+            file: "",
+            youtubeId: "jfKfPfyJRdk",
+            defaultVolume: 35
+        };
+
+        const TOTAL = questionsData.length;
+        const rootEl = document.documentElement;
+        const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>';
+        const X_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>';
+        const BULB_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 22h4"></path><path d="M12 2a7 7 0 00-4 12c.6.5 1 1.4 1 2h6c0-.6.4-1.5 1-2a7 7 0 00-4-12z"></path></svg>';
+
+        let userAnswers = {};
+        let isSubmitted = false;
+        let timerInterval = null;
+        let timeLeft = 45 * 60;
+
+        let effectsOn = !rootEl.classList.contains('effects-off');
+        let sfxOn = !rootEl.classList.contains('sfx-off');
+        const prefersReducedMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+        /* Âm thanh nền */
+        let musicWanted = false;
+        let musicPlaying = false;
+        let musicAudio = null;
+        let musicFileFailed = false;
+        let musicPlayerYt = null;
+        let ytApiLoading = false;
+        let ytApiCallbacks = [];
+        let currentVolume = (function () {
+            try {
+                const v = parseInt(localStorage.getItem('gdqp-volume'), 10);
+                if (!isNaN(v) && v >= 0 && v <= 100) return v;
+            } catch (e) { /* bỏ qua */ }
+            return MUSIC.defaultVolume;
+        })();
+
+        /* =====================================================================
+           KHỞI TẠO
+           ===================================================================== */
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+            applyThemeMeta();
+            bindStudentInfo();
+            renderQuestions();
+            renderPalette();
+            updateProgress();
+            updateTimerDisplay();
+            startTimer();
+            setupMusicUI();
+            setupCursorGlow();
+            updateToolButtons();
+            setMusicPlaying(false);
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                    closeSidebar();
+                }
+            });
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth >= 1024) closeSidebar();
+            });
+        }
+
+        /* =====================================================================
+           GIAO DIỆN: SÁNG / TỐI
+           ===================================================================== */
+        function applyThemeMeta() {
+            const meta = document.getElementById('meta-theme');
+            if (meta) meta.setAttribute('content', rootEl.classList.contains('dark') ? '#060a13' : '#edf1f9');
+        }
+
+        function toggleTheme() {
+            const dark = rootEl.classList.toggle('dark');
+            try { localStorage.setItem('gdqp-theme', dark ? 'dark' : 'light'); } catch (e) { /* bỏ qua */ }
+            applyThemeMeta();
+            sfxToggleTone(dark ? 720 : 880);
+            toast(dark ? 'Đã bật chế độ tối 🌙' : 'Đã bật chế độ sáng ☀️', 'info');
+        }
+
+        /* =====================================================================
+           HIỆU ỨNG & ÂM THANH
+           ===================================================================== */
+        function toggleEffects() {
+            effectsOn = !effectsOn;
+            rootEl.classList.toggle('effects-off', !effectsOn);
+            try { localStorage.setItem('gdqp-effects', effectsOn ? 'on' : 'off'); } catch (e) { /* bỏ qua */ }
+            updateToolButtons();
+            toast(effectsOn ? 'Đã bật hiệu ứng ✨' : 'Đã tắt hiệu ứng để đỡ mỏi mắt', effectsOn ? 'ok' : 'info');
+        }
+
+        function toggleSfx() {
+            sfxOn = !sfxOn;
+            rootEl.classList.toggle('sfx-off', !sfxOn);
+            try { localStorage.setItem('gdqp-sfx', sfxOn ? 'on' : 'off'); } catch (e) { /* bỏ qua */ }
+            updateToolButtons();
+            if (sfxOn) {
+                sfxToggleTone(880);
+                toast('Đã bật âm thanh khi chọn 🔊', 'ok');
+            } else {
+                toast('Đã tắt âm thanh khi chọn 🔇', 'info');
+            }
+        }
+
+        function updateToolButtons() {
+            const effectsBtn = document.getElementById('effects-toggle');
+            if (effectsBtn) {
+                effectsBtn.classList.toggle('is-off', !effectsOn);
+                effectsBtn.setAttribute('aria-pressed', effectsOn ? 'true' : 'false');
+            }
+            const sfxBtn = document.getElementById('sfx-toggle');
+            if (sfxBtn) sfxBtn.setAttribute('aria-pressed', sfxOn ? 'true' : 'false');
+        }
+
+        /* Web Audio API: tạo âm thanh ngắn, không cần file ngoài */
+        let audioCtx = null;
+
+        function getAudioCtx() {
+            if (!sfxOn) return null;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                return audioCtx;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function tone(freq, dur, type, vol, delay, slideTo) {
+            const ctx = getAudioCtx();
+            if (!ctx) return;
+            try {
+                const t0 = ctx.currentTime + (delay || 0);
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type || 'sine';
+                osc.frequency.setValueAtTime(freq, t0);
+                if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+                gain.gain.setValueAtTime(0.0001, t0);
+                gain.gain.exponentialRampToValueAtTime(vol || 0.05, t0 + 0.012);
+                gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(t0);
+                osc.stop(t0 + dur + 0.03);
+            } catch (e) { /* bỏ qua */ }
+        }
+
+        function sfxSelect() {
+            tone(660, 0.07, 'sine', 0.045, 0, 900);
+            tone(990, 0.05, 'triangle', 0.022, 0.035);
+        }
+
+        function sfxToggleTone(freq) {
+            tone(freq || 760, 0.07, 'sine', 0.035);
+        }
+
+        function sfxSubmit() {
+            [523.25, 659.25, 783.99, 1046.5].forEach(function (f, i) {
+                tone(f, 0.34, 'sine', 0.045, i * 0.09);
+            });
+        }
+
+        function vibrate(ms) {
+            try {
+                if (navigator.vibrate && window.matchMedia('(pointer: coarse)').matches) navigator.vibrate(ms);
+            } catch (e) { /* bỏ qua */ }
+        }
+
+        /* =====================================================================
+           HIỆU ỨNG CHUỘT, TIA SÁNG, PHÁO GIẤY
+           ===================================================================== */
+        function setupCursorGlow() {
+            const glow = document.getElementById('cursor-glow');
+            if (!glow) return;
+            if (prefersReducedMotion || !window.matchMedia('(pointer: fine)').matches) {
+                glow.style.display = 'none';
+                return;
+            }
+            let tx = window.innerWidth / 2;
+            let ty = window.innerHeight * 0.3;
+            let cx = tx;
+            let cy = ty;
+            let seen = false;
+
+            window.addEventListener('pointermove', function (e) {
+                if (e.pointerType && e.pointerType !== 'mouse') return;
+                tx = e.clientX;
+                ty = e.clientY;
+                if (!seen) {
+                    seen = true;
+                    glow.classList.add('visible');
+                }
+            }, { passive: true });
+
+            function frame() {
+                cx += (tx - cx) * 0.12;
+                cy += (ty - cy) * 0.12;
+                glow.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
+                requestAnimationFrame(frame);
+            }
+            frame();
+        }
+
+        function createRipple(el, event) {
+            if (!effectsOn) return;
+            const rect = el.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height) * 1.15;
+            const x = ((event && event.clientX) ? event.clientX : rect.left + rect.width / 2) - rect.left;
+            const y = ((event && event.clientY) ? event.clientY : rect.top + rect.height / 2) - rect.top;
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            ripple.style.width = size + 'px';
+            ripple.style.height = size + 'px';
+            ripple.style.left = (x - size / 2) + 'px';
+            ripple.style.top = (y - size / 2) + 'px';
+            el.appendChild(ripple);
+            window.setTimeout(function () { ripple.remove(); }, 660);
+        }
+
+        function sparkBurst(x, y) {
+            if (!effectsOn || prefersReducedMotion) return;
+            const colors = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'];
+            for (let i = 0; i < 10; i++) {
+                const el = document.createElement('span');
+                el.className = 'spark';
+                const angle = (Math.PI * 2 * i) / 10 + Math.random() * 0.5;
+                const dist = 24 + Math.random() * 40;
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.setProperty('--dx', (Math.cos(angle) * dist).toFixed(1) + 'px');
+                el.style.setProperty('--dy', (Math.sin(angle) * dist).toFixed(1) + 'px');
+                el.style.background = colors[i % colors.length];
+                document.body.appendChild(el);
+                window.setTimeout(function () { el.remove(); }, 720);
+            }
+        }
+
+        let confettiFrame = null;
+
+        function launchConfetti() {
+            if (!effectsOn || prefersReducedMotion) return;
+            const canvas = document.getElementById('confetti-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            canvas.width = Math.floor(w * dpr);
+            canvas.height = Math.floor(h * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            const colors = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#f43f5e', '#a855f7', '#ffffff'];
+            const parts = [];
+            for (let i = 0; i < 140; i++) {
+                parts.push({
+                    x: Math.random() * w,
+                    y: -20 - Math.random() * h * 0.6,
+                    vx: (Math.random() - 0.5) * 2.4,
+                    vy: 2 + Math.random() * 4,
+                    size: 4 + Math.random() * 7,
+                    rot: Math.random() * Math.PI,
+                    vr: (Math.random() - 0.5) * 0.24,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    round: Math.random() < 0.45
+                });
+            }
+
+            const start = performance.now();
+            if (confettiFrame) cancelAnimationFrame(confettiFrame);
+
+            function frame(now) {
+                const progress = (now - start) / 3300;
+                ctx.clearRect(0, 0, w, h);
+                parts.forEach(function (p) {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.022;
+                    p.rot += p.vr;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot);
+                    ctx.globalAlpha = Math.max(0, 1 - progress);
+                    ctx.fillStyle = p.color;
+                    if (p.round) {
+                        ctx.beginPath();
+                        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+                    }
+                    ctx.restore();
+                });
+                if (progress < 1) confettiFrame = requestAnimationFrame(frame);
+                else ctx.clearRect(0, 0, w, h);
+            }
+            confettiFrame = requestAnimationFrame(frame);
+        }
+
+        /* =====================================================================
+           RENDER CÂU HỎI
+           ===================================================================== */
+        function esc(str) {
+            return String(str).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = questionsData.map(function (q, index) {
+                const optionsHtml = q.options.map(function (opt, optIndex) {
+                    const letter = String.fromCharCode(65 + optIndex);
+                    return '' +
+                        '<button type="button" class="option" data-q="' + index + '" data-o="' + optIndex + '" aria-pressed="false" aria-label="Đáp án ' + letter + '">' +
+                            '<span class="option-key">' + letter + '</span>' +
+                            '<span class="option-text">' + esc(opt) + '</span>' +
+                            '<span class="mark mark-check" aria-hidden="true">' + CHECK_SVG + '</span>' +
+                            '<span class="mark mark-x" aria-hidden="true">' + X_SVG + '</span>' +
+                        '</button>';
+                }).join('');
+
+                return '' +
+                    '<article class="question-card" id="qcard-' + index + '" style="animation-delay:' + Math.min(index * 26, 620) + 'ms">' +
+                        '<div class="q-head">' +
+                            '<span class="q-number">Câu ' + (index + 1) + '</span>' +
+                            '<span class="chip" id="status-' + index + '">Chưa trả lời</span>' +
+                        '</div>' +
+                        '<h3 class="q-text">' + esc(q.question) + '</h3>' +
+                        '<div class="options" role="group" aria-label="Chọn đáp án câu ' + (index + 1) + '">' + optionsHtml + '</div>' +
+                        '<div class="explanation" id="explanation-' + index + '">' +
+                            '<div class="explanation-title">' + BULB_SVG + '<span>Giải thích chi tiết</span></div>' +
+                            '<p>' + esc(q.explanation) + '</p>' +
+                        '</div>' +
+                    '</article>';
+            }).join('');
+
+            container.querySelectorAll('.option').forEach(function (btn) {
+                btn.addEventListener('click', function (event) {
+                    selectOption(parseInt(btn.dataset.q, 10), parseInt(btn.dataset.o, 10), event);
+                });
+            });
+        }
+
+        function renderPalette() {
+            const grid = document.getElementById('palette-grid');
+            grid.innerHTML = questionsData.map(function (_, i) {
+                return '<button type="button" class="palette-btn" id="palette-' + i + '" onclick="scrollToQuestion(' + i + ')" aria-label="Đi đến câu ' + (i + 1) + '">' + (i + 1) + '</button>';
+            }).join('');
+            for (let i = 0; i < TOTAL; i++) updatePaletteButton(i, false);
+        }
+
+        /* =====================================================================
+           CHỌN ĐÁP ÁN
+           ===================================================================== */
+        function selectOption(qIndex, optIndex, event) {
+            if (isSubmitted) return;
+
+            const changed = userAnswers[qIndex] !== optIndex;
+            userAnswers[qIndex] = optIndex;
+
+            const card = document.getElementById('qcard-' + qIndex);
+            if (card) {
+                card.querySelectorAll('.option').forEach(function (btn) {
+                    const selected = parseInt(btn.dataset.o, 10) === optIndex;
+                    btn.classList.toggle('selected', selected);
+                    btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+                });
+            }
+
+            const status = document.getElementById('status-' + qIndex);
+            if (status) {
+                status.textContent = 'Đã trả lời';
+                status.className = 'chip answered';
+            }
+
+            updatePaletteButton(qIndex, true);
+            updateProgress();
+
+            if (changed) {
+                sfxSelect();
+                vibrate(8);
+            }
+
+            if (event) {
+                const target = event.currentTarget;
+                createRipple(target, event);
+                const rect = target.getBoundingClientRect();
+                const x = event.clientX || rect.left + rect.width / 2;
+                const y = event.clientY || rect.top + rect.height / 2;
+                sparkBurst(x, y);
+                target.classList.remove('pop');
+                void target.offsetWidth;
+                target.classList.add('pop');
+            }
+        }
+
+        function updatePaletteButton(index, animate) {
+            const btn = document.getElementById('palette-' + index);
+            if (!btn) return;
+            const answered = userAnswers[index] !== undefined;
+            let cls = 'palette-btn';
+
+            if (isSubmitted) {
+                if (!answered) cls += ' empty';
+                else if (userAnswers[index] === questionsData[index].correct) cls += ' correct';
+                else cls += ' wrong';
+            } else if (answered) {
+                cls += ' answered';
+            }
+
+            btn.className = cls;
+            if (animate) {
+                btn.classList.add('bump');
+                window.setTimeout(function () { btn.classList.remove('bump'); }, 300);
+            }
+        }
+
+        function updateProgress() {
+            const answered = Object.keys(userAnswers).length;
+            const pct = Math.round((answered / TOTAL) * 100);
+
+            const counter = document.getElementById('answered-counter');
+            const mobileCounter = document.getElementById('mobile-answered');
+            const fill = document.getElementById('progress-fill');
+            const mobileFill = document.getElementById('mobile-progress-fill');
+            const hint = document.getElementById('progress-hint');
+
+            if (counter) counter.textContent = answered + '/' + TOTAL;
+            if (mobileCounter) mobileCounter.textContent = answered + '/' + TOTAL;
+            if (fill) fill.style.width = pct + '%';
+            if (mobileFill) mobileFill.style.width = pct + '%';
+
+            if (hint) {
+                if (answered === 0) hint.textContent = 'Bạn chưa trả lời câu nào. Bắt đầu làm bài nhé!';
+                else if (answered < TOTAL) hint.textContent = 'Còn ' + (TOTAL - answered) + ' câu chưa trả lời. Cố lên!';
+                else hint.textContent = 'Tuyệt vời! Bạn đã trả lời đủ ' + TOTAL + ' câu.';
+            }
+        }
+
+        /* =====================================================================
+           ĐIỀU HƯỚNG CÂU HỎI
+           ===================================================================== */
+        function scrollToQuestion(index) {
+            const card = document.getElementById('qcard-' + index);
+            if (!card) return;
+            const isMobile = window.innerWidth < 1024;
+            if (isMobile) closeSidebar();
+
+            const doScroll = function () {
+                card.scrollIntoView({ behavior: effectsOn ? 'smooth' : 'auto', block: 'center' });
+                card.classList.remove('flash');
+                void card.offsetWidth;
+                card.classList.add('flash');
+                window.setTimeout(function () { card.classList.remove('flash'); }, 1600);
+            };
+
+            if (isMobile) window.setTimeout(doScroll, 80);
+            else doScroll();
+        }
+
+        function openSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (!sidebar) return;
+            sidebar.classList.add('open');
+            if (overlay) overlay.classList.add('show');
+            syncBodyLock();
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (!sidebar || !sidebar.classList.contains('open')) return;
+            sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('show');
+            syncBodyLock();
+        }
+
+        function syncBodyLock() {
+            const sidebarOpen = document.getElementById('sidebar').classList.contains('open');
+            const modalOpen = document.getElementById('confirm-modal').classList.contains('open');
+            document.body.classList.toggle('locked', sidebarOpen || modalOpen);
+        }
+
+        /* =====================================================================
+           ĐỒNG HỒ
+           ===================================================================== */
+        function formatTime(totalSeconds) {
+            const s = Math.max(0, totalSeconds);
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+        }
+
+        function updateTimerDisplay() {
+            const text = formatTime(timeLeft);
+            const desktop = document.getElementById('time-remaining');
+            const mobile = document.getElementById('time-remaining-mobile');
+            const timerBox = document.getElementById('timer-box');
+            const mobileBox = document.getElementById('mobile-timer-box');
+            const warning = timeLeft <= 300;
+
+            if (desktop) desktop.textContent = text;
+            if (mobile) mobile.textContent = text;
+            if (timerBox) timerBox.classList.toggle('warning', warning);
+            if (mobileBox) mobileBox.classList.toggle('warning', warning);
+
+            if (!isSubmitted) {
+                document.title = text + ' · Kiểm tra GDQP 12 - Mã đề 301';
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(function () {
+                if (isSubmitted) return;
+                timeLeft -= 1;
+
+                if (timeLeft <= 0) {
+                    timeLeft = 0;
+                    updateTimerDisplay();
+                    clearInterval(timerInterval);
+                    autoSubmitOnTimeout();
+                    return;
+                }
+
+                updateTimerDisplay();
+                if (timeLeft === 300) toast('Còn 5 phút làm bài. Tranh thủ nhé! ⏳', 'warn');
+            }, 1000);
+        }
+
+        function autoSubmitOnTimeout() {
+            toast('Hết giờ làm bài! Hệ thống sẽ tự động nộp bài.', 'warn');
+            window.setTimeout(function () { submitExam(); }, 700);
+        }
+
+        /* =====================================================================
+           NỘP BÀI
+           ===================================================================== */
+        function confirmSubmit() {
+            if (isSubmitted) return;
+            const answered = Object.keys(userAnswers).length;
+            const msg = document.getElementById('modal-msg');
+
+            if (answered < TOTAL) {
+                msg.textContent = 'Bạn mới trả lời ' + answered + '/' + TOTAL + ' câu. Vẫn còn ' + (TOTAL - answered) + ' câu chưa làm. Bạn có chắc muốn nộp bài và xem giải chi tiết?';
+            } else {
+                msg.textContent = 'Bạn đã hoàn thành tất cả ' + TOTAL + ' câu. Nộp bài để xem điểm và giải thích chi tiết nhé!';
+            }
+
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            syncBodyLock();
+            window.setTimeout(function () {
+                const primary = modal.querySelector('.btn-primary');
+                if (primary) primary.focus();
+            }, 60);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('confirm-modal');
+            if (!modal || !modal.classList.contains('open')) return;
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            syncBodyLock();
+        }
+
+        function submitExam() {
+            if (isSubmitted) return;
+
+            closeModal();
+            closeSidebar();
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            const desktopSubmit = document.getElementById('submit-btn');
+            const mobileSubmit = document.getElementById('mobile-submit-btn');
+            if (desktopSubmit) desktopSubmit.classList.add('hidden');
+            if (mobileSubmit) mobileSubmit.classList.add('hidden');
+
+            let correctCount = 0;
+            let wrongCount = 0;
+            let emptyCount = 0;
+
+            questionsData.forEach(function (q, index) {
+                const userChoice = userAnswers[index];
+                const card = document.getElementById('qcard-' + index);
+                const status = document.getElementById('status-' + index);
+
+                if (card) {
+                    card.classList.add('submitted');
+                    card.querySelectorAll('.option').forEach(function (btn) {
+                        const optIndex = parseInt(btn.dataset.o, 10);
+                        btn.disabled = true;
+                        btn.classList.remove('selected');
+                        btn.setAttribute('aria-pressed', 'false');
+
+                        if (optIndex === q.correct) btn.classList.add('correct');
+                        if (userChoice !== undefined && optIndex === userChoice && userChoice !== q.correct) {
+                            btn.classList.add('wrong');
+                        }
+                    });
+                }
+
+                if (status) {
+                    if (userChoice === q.correct) {
+                        status.textContent = 'Đúng';
+                        status.className = 'chip correct';
+                        correctCount += 1;
+                    } else if (userChoice === undefined) {
+                        status.textContent = 'Chưa trả lời';
+                        status.className = 'chip empty';
+                        emptyCount += 1;
+                    } else {
+                        status.textContent = 'Sai';
+                        status.className = 'chip wrong';
+                        wrongCount += 1;
+                    }
+                }
+
+                const explanation = document.getElementById('explanation-' + index);
+                if (explanation) explanation.classList.add('open');
+
+                updatePaletteButton(index, false);
+            });
+
+            const score10 = ((correctCount / TOTAL) * 10).toFixed(2);
+            updateResults(correctCount, wrongCount, emptyCount, score10);
+            updateProgress();
+
+            const scoreCard = document.getElementById('score-card');
+            if (scoreCard) scoreCard.classList.remove('hidden');
+
+            document.title = 'Kết quả · Kiểm tra GDQP 12 - Mã đề 301';
+
+            launchConfetti();
+            sfxSubmit();
+
+            window.scrollTo({ top: 0, behavior: effectsOn ? 'smooth' : 'auto' });
+            toast('Đã nộp bài! Kéo xuống để xem giải thích chi tiết từng câu.', 'ok');
+        }
+
+        function updateResults(correct, wrong, empty, score) {
+            const percent = Math.round((correct / TOTAL) * 100);
+
+            const banner = document.getElementById('result-banner');
+            if (banner) banner.classList.remove('hidden');
+
+            setText('r-correct', correct);
+            setText('r-wrong', wrong);
+            setText('r-empty', empty);
+            setText('result-score', score);
+            setText('score-display', correct + '/' + TOTAL);
+            setText('score-detail', 'Điểm: ' + score + ' / 10');
+
+            const ring = document.getElementById('score-ring');
+            if (ring) ring.style.setProperty('--p', percent);
+
+            const scoreNumber = parseFloat(score);
+            let title = 'Đừng nản! Cùng xem lại đáp án chi tiết nhé.';
+            let emoji = '💡';
+
+            if (scoreNumber >= 8) {
+                title = 'Xuất sắc! Bạn làm bài rất tốt. 🎉';
+                emoji = '🏆';
+            } else if (scoreNumber >= 6.5) {
+                title = 'Khá tốt! Cố gắng thêm chút nữa nhé. 💪';
+                emoji = '🎉';
+            } else if (scoreNumber >= 5) {
+                title = 'Đạt yêu cầu! Hãy xem lại các câu sai.';
+                emoji = '📘';
+            }
+
+            setText('result-title', title);
+            setText('result-emoji', emoji);
+            setText('result-summary', 'Bạn trả lời đúng ' + correct + '/' + TOTAL + ' câu · Điểm ' + score + '/10. Kéo xuống để xem giải thích từng câu.');
+        }
+
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        }
+
+        function resetExam() {
+            if (isSubmitted && !window.confirm('Bạn có chắc muốn làm lại bài thi? Toàn bộ câu trả lời sẽ bị xoá.')) return;
+
+            userAnswers = {};
+            isSubmitted = false;
+            timeLeft = 45 * 60;
+            clearInterval(timerInterval);
+
+            const desktopSubmit = document.getElementById('submit-btn');
+            const mobileSubmit = document.getElementById('mobile-submit-btn');
+            if (desktopSubmit) desktopSubmit.classList.remove('hidden');
+            if (mobileSubmit) mobileSubmit.classList.remove('hidden');
+
+            const banner = document.getElementById('result-banner');
+            if (banner) banner.classList.add('hidden');
+            const scoreCard = document.getElementById('score-card');
+            if (scoreCard) scoreCard.classList.add('hidden');
+
+            closeModal();
+            closeSidebar();
+
+            renderQuestions();
+            renderPalette();
+            updateProgress();
+            updateTimerDisplay();
+            startTimer();
+            updateToolButtons();
+
+            document.title = 'Kiểm tra GDQP 12 - Mã đề 301';
+            window.scrollTo({ top: 0, behavior: effectsOn ? 'smooth' : 'auto' });
+            toast('Đã làm mới bài thi. Chúc bạn làm bài tốt! 🍀', 'ok');
+        }
+
+        /* =====================================================================
+           THÔNG TIN THÍ SINH (LƯU LẠI)
+           ===================================================================== */
+        function bindStudentInfo() {
+            [['student-name', 'gdqp-student-name'], ['student-class', 'gdqp-student-class']].forEach(function (pair) {
+                const el = document.getElementById(pair[0]);
+                if (!el) return;
+                try { el.value = localStorage.getItem(pair[1]) || ''; } catch (e) { /* bỏ qua */ }
+                el.addEventListener('input', function () {
+                    try { localStorage.setItem(pair[1], el.value); } catch (e) { /* bỏ qua */ }
+                });
+            });
+        }
+
+        /* =====================================================================
+           NHẠC NỀN LO-FI
+           ===================================================================== */
+        function setupMusicUI() {
+            const volume = document.getElementById('music-volume');
+            if (volume) {
+                volume.value = currentVolume;
+                volume.addEventListener('input', function (e) { setVolume(e.target.value); });
+            }
+            const label = document.getElementById('volume-label');
+            if (label) label.textContent = currentVolume + '%';
+        }
+
+        function setVolume(value) {
+            currentVolume = Math.max(0, Math.min(100, parseInt(value, 10) || 0));
+            try { localStorage.setItem('gdqp-volume', currentVolume); } catch (e) { /* bỏ qua */ }
+
+            const label = document.getElementById('volume-label');
+            const input = document.getElementById('music-volume');
+            if (label) label.textContent = currentVolume + '%';
+            if (input && parseInt(input.value, 10) !== currentVolume) input.value = currentVolume;
+
+            if (musicAudio) musicAudio.volume = currentVolume / 100;
+            if (musicPlayerYt && typeof musicPlayerYt.setVolume === 'function') {
+                try { musicPlayerYt.setVolume(currentVolume); } catch (e) { /* bỏ qua */ }
+            }
+        }
+
+        function setMusicPlaying(playing) {
+            musicPlaying = playing;
+            const headerBtn = document.getElementById('music-toggle');
+            const playBtn = document.getElementById('music-play');
+            const status = document.getElementById('music-status');
+
+            if (headerBtn) {
+                headerBtn.classList.toggle('playing', playing);
+                headerBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+            }
+            if (playBtn) {
+                playBtn.classList.toggle('playing', playing);
+                playBtn.setAttribute('aria-label', playing ? 'Tạm dừng nhạc nền' : 'Phát nhạc nền');
+            }
+            if (status) status.textContent = playing ? 'Đang phát · Lofi Chill 🎶' : 'Nhạc nền thư giãn khi làm bài';
+        }
+
+        function toggleMusic() {
+            if (musicPlaying) {
+                pauseMusic();
+            } else {
+                playMusic();
+            }
+        }
+
+        function playMusic() {
+            musicWanted = true;
+
+            if (MUSIC.file && !musicFileFailed) {
+                if (!musicAudio) {
+                    musicAudio = new Audio();
+                    musicAudio.loop = true;
+                    musicAudio.preload = 'auto';
+                    musicAudio.src = MUSIC.file;
+                    musicAudio.addEventListener('error', function () {
+                        if (musicFileFailed) return;
+                        musicFileFailed = true;
+                        musicAudio = null;
+                        toast('Không tải được file MP3, chuyển sang nhạc YouTube...', 'warn');
+                        if (musicWanted) startYouTube();
+                    });
+                }
+                musicAudio.volume = currentVolume / 100;
+                const promise = musicAudio.play();
+                if (promise && promise.then) {
+                    promise.then(function () {
+                        if (musicWanted) setMusicPlaying(true);
+                    }).catch(function () {
+                        if (musicWanted && !musicFileFailed) {
+                            musicFileFailed = true;
+                            musicAudio = null;
+                            startYouTube();
+                        }
+                    });
+                }
+                return;
+            }
+
+            startYouTube();
+        }
+
+        function pauseMusic() {
+            musicWanted = false;
+            if (musicAudio) musicAudio.pause();
+            if (musicPlayerYt && typeof musicPlayerYt.pauseVideo === 'function') {
+                try { musicPlayerYt.pauseVideo(); } catch (e) { /* bỏ qua */ }
+            }
+            setMusicPlaying(false);
+        }
+
+        function startYouTube() {
+            if (!musicWanted) return;
+
+            if (musicPlayerYt && typeof musicPlayerYt.playVideo === 'function') {
+                try {
+                    musicPlayerYt.setVolume(currentVolume);
+                    musicPlayerYt.playVideo();
+                    setMusicPlaying(true);
+                    return;
+                } catch (e) { /* tạo lại player bên dưới */ }
+            }
+
+            loadYouTubeApi(function () {
+                if (!musicWanted) return;
+                if (!window.YT || !window.YT.Player) {
+                    toast('Không tải được YouTube. Kiểm tra kết nối mạng nhé!', 'error');
+                    return;
+                }
+                if (musicPlayerYt && typeof musicPlayerYt.playVideo === 'function') {
+                    try { musicPlayerYt.playVideo(); setMusicPlaying(true); } catch (e) { /* bỏ qua */ }
+                    return;
+                }
+
+                musicPlayerYt = new YT.Player('yt-player', {
+                    width: '200',
+                    height: '120',
+                    videoId: MUSIC.youtubeId,
+                    playerVars: {
+                        autoplay: 0,
+                        controls: 0,
+                        disablekb: 1,
+                        loop: 1,
+                        playlist: MUSIC.youtubeId,
+                        modestbranding: 1,
+                        rel: 0,
+                        playsinline: 1
+                    },
+                    events: {
+                        onReady: function (event) {
+                            if (!musicWanted) return;
+                            try {
+                                event.target.setVolume(currentVolume);
+                                event.target.playVideo();
+                                setMusicPlaying(true);
+                            } catch (e) { /* bỏ qua */ }
+                        },
+                        onStateChange: function (event) {
+                            if (event.data === YT.PlayerState.PLAYING) {
+                                if (musicWanted) setMusicPlaying(true);
+                            } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                                setMusicPlaying(false);
+                            }
+                        },
+                        onError: function () {
+                            setMusicPlaying(false);
+                            toast('Không phát được video YouTube. Bạn thử thêm file MP3 trong cấu hình nhé!', 'error');
+                        }
+                    }
+                });
+            });
+        }
+
+        function loadYouTubeApi(callback) {
+            if (window.YT && window.YT.Player) {
+                callback();
+                return;
+            }
+            ytApiCallbacks.push(callback);
+            if (ytApiLoading) return;
+
+            ytApiLoading = true;
+            const previous = window.onYouTubeIframeAPIReady;
+            window.onYouTubeIframeAPIReady = function () {
+                if (typeof previous === 'function') previous();
+                ytApiLoading = false;
+                const callbacks = ytApiCallbacks.slice();
+                ytApiCallbacks = [];
+                callbacks.forEach(function (cb) { try { cb(); } catch (e) { /* bỏ qua */ } });
+            };
+
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            tag.onerror = function () {
+                ytApiLoading = false;
+                toast('Không kết nối được YouTube. Kiểm tra mạng nhé!', 'error');
+            };
+            document.head.appendChild(tag);
+        }
+
+        /* =====================================================================
+           TOAST
+           ===================================================================== */
+        function toast(message, type) {
+            const stack = document.getElementById('toast-stack');
+            if (!stack) return;
+            const icons = { info: '💡', ok: '✅', warn: '⏳', error: '⚠️', music: '🎧' };
+            const el = document.createElement('div');
+            el.className = 'toast ' + (type || 'info');
+
+            const icon = document.createElement('span');
+            icon.className = 'toast-icon';
+            icon.textContent = icons[type] || icons.info;
+
+            const text = document.createElement('span');
+            text.textContent = message;
+
+            el.appendChild(icon);
+            el.appendChild(text);
+            stack.appendChild(el);
+
+            window.setTimeout(function () {
+                el.classList.add('out');
+                window.setTimeout(function () { el.remove(); }, 300);
+            }, 2700);
+        }
+    </script>
+</body>
+</html>
