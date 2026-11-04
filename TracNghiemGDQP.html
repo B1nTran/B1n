@@ -1436,7 +1436,7 @@
                         </svg>
                     </button>
 
-                    <button type="button" class="icon-btn music-btn has-tip" id="music-toggle" onclick="toggleMusic()" aria-label="Bật hoặc tắt nhạc nền" aria-pressed="false" data-tip="Nhạc nền Lofi">
+                    <button type="button" class="icon-btn music-btn has-tip" id="music-toggle" onclick="toggleMusic()" aria-label="Bật hoặc tắt nhạc nền" aria-pressed="false" data-tip="Nhạc nền Lofi &amp; mưa">
                         <svg class="music-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M9 18V6l10-2v12"></path>
                             <circle cx="6" cy="18" r="3"></circle>
@@ -1593,8 +1593,8 @@
                 <div class="music-head">
                     <div class="music-art" aria-hidden="true">🎧</div>
                     <div>
-                        <h3>Lofi Chill</h3>
-                        <p id="music-status">Nhạc nền thư giãn khi làm bài</p>
+                        <h3>Less Talk, More Action</h3>
+                        <p id="music-status">chill chill journal · Lofi &amp; tiếng mưa</p>
                     </div>
                     <button type="button" class="play-btn" id="music-play" onclick="toggleMusic()" aria-label="Phát nhạc nền">
                         <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
@@ -2166,7 +2166,7 @@
            ===================================================================== */
         const MUSIC = {
             file: "",
-            youtubeId: "jfKfPfyJRdk",
+            youtubeId: "9kzE8isXlQY",
             defaultVolume: 35
         };
 
@@ -2941,7 +2941,7 @@
                 playBtn.classList.toggle('playing', playing);
                 playBtn.setAttribute('aria-label', playing ? 'Tạm dừng nhạc nền' : 'Phát nhạc nền');
             }
-            if (status) status.textContent = playing ? 'Đang phát · Lofi Chill 🎶' : 'Nhạc nền thư giãn khi làm bài';
+            if (status) status.textContent = playing ? 'Đang phát · Less Talk, More Action 🎶' : 'chill chill journal · Lofi & tiếng mưa';
         }
 
         function toggleMusic() {
