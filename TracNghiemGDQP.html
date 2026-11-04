@@ -20,6 +20,30 @@
                     if (forcedTheme === 'dark' || forcedTheme === 'light') useDark = forcedTheme === 'dark';
                 } catch (e) { /* bỏ qua */ }
                 document.documentElement.classList.toggle('dark', useDark);
+                /* Áp màu chủ đạo đã lưu trước khi CSS tải xong */
+                var savedAccent = localStorage.getItem('gdqp-accent');
+                var accentMap = {
+                    indigo: ['#4f46e5', '#0ea5e9'],
+                    emerald: ['#059669', '#14b8a6'],
+                    sunset: ['#ea580c', '#f59e0b'],
+                    rose: ['#e11d48', '#f43f5e'],
+                    violet: ['#7c3aed', '#a855f7'],
+                    ocean: ['#0369a1', '#06b6d4']
+                };
+                var accentPair = accentMap[savedAccent];
+                if (accentPair) {
+                    var gdqpRgba = function (hex, alpha) {
+                        var n = parseInt(hex.slice(1), 16);
+                        return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + alpha + ')';
+                    };
+                    var accentStyle = document.documentElement.style;
+                    accentStyle.setProperty('--primary', accentPair[0]);
+                    accentStyle.setProperty('--primary-strong', accentPair[0]);
+                    accentStyle.setProperty('--primary-soft', gdqpRgba(accentPair[0], 0.12));
+                    accentStyle.setProperty('--accent', accentPair[1]);
+                    accentStyle.setProperty('--accent-soft', gdqpRgba(accentPair[1], 0.14));
+                    accentStyle.setProperty('--grad', 'linear-gradient(135deg, ' + accentPair[0] + ', ' + accentPair[1] + ')');
+                }
                 if (localStorage.getItem('gdqp-effects') === 'off') document.documentElement.classList.add('effects-off');
                 if (localStorage.getItem('gdqp-sfx') === 'off') document.documentElement.classList.add('sfx-off');
             } catch (e) { /* bỏ qua nếu trình duyệt chặn localStorage */ }
@@ -524,7 +548,7 @@
             padding: 20px;
             border-radius: 22px;
             color: #fff;
-            background: linear-gradient(120deg, #4f46e5, #0ea5e9 62%, #06b6d4);
+            background: linear-gradient(120deg, var(--primary), var(--accent) 62%, var(--accent));
             box-shadow: 0 24px 50px -24px rgba(79, 70, 229, 0.9);
             overflow: hidden;
             animation: cardIn 0.5s cubic-bezier(0.22, 0.8, 0.25, 1) both;
@@ -863,32 +887,6 @@
         }
         .hint { margin: 8px 0 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
 
-        .field { margin-bottom: 10px; }
-        .field:last-child { margin-bottom: 0; }
-        .field label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 10.5px;
-            font-weight: 700;
-            color: var(--muted);
-            letter-spacing: 0.2px;
-            text-transform: uppercase;
-        }
-        .field input {
-            width: 100%;
-            padding: 9px 11px;
-            border-radius: 11px;
-            border: 1px solid var(--border-strong);
-            background: var(--surface-strong);
-            color: var(--text);
-            font-size: 12.5px;
-            font-weight: 500;
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .field input::placeholder { color: var(--muted); opacity: 0.7; }
-        .field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
-
         .legend {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -953,7 +951,7 @@
         .score-card {
             position: relative;
             border: 0;
-            background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+            background: var(--grad);
             color: #fff;
             overflow: hidden;
         }
@@ -984,7 +982,7 @@
             position: absolute;
             inset: 8px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #4338ca, #0284c7);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
         }
         .score-ring div { position: relative; z-index: 1; text-align: center; line-height: 1.1; }
         .score-ring b { display: block; font-size: 22px; font-weight: 900; }
@@ -1034,6 +1032,118 @@
         .volume-row span { width: 34px; text-align: right; font-size: 10.5px; font-weight: 700; color: var(--muted); }
 
         .music-note-text { margin: 8px 0 0; font-size: 10.5px; line-height: 1.45; color: var(--muted); }
+
+        /* ============================================================
+           9b. KẾT QUẢ CHI TIẾT · XÁO TRỘN · MÀU CHỦ ĐẠO
+           ============================================================ */
+        .result-detail {
+            padding: 18px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+            animation: cardIn 0.5s cubic-bezier(0.22, 0.8, 0.25, 1) both;
+        }
+        .rd-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .rd-head h3 {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 800;
+        }
+        .rd-head h3 svg { width: 17px; height: 17px; color: var(--primary); flex: none; }
+        .rd-summary { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 13px; }
+        .rd-tag {
+            padding: 6px 11px;
+            border-radius: 999px;
+            background: var(--surface-soft);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+        .rd-tag b { color: var(--text); }
+        .topic-list { display: flex; flex-direction: column; gap: 9px; }
+        .topic-row { display: flex; flex-direction: column; gap: 4px; }
+        .topic-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+        .topic-top span:last-child { color: var(--muted); font-weight: 800; font-variant-numeric: tabular-nums; }
+        .topic-bar { height: 7px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+        .topic-bar span {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 99px;
+            background: var(--danger);
+            transition: width 0.55s cubic-bezier(0.22, 0.8, 0.25, 1);
+        }
+        .topic-row.mid .topic-bar span { background: var(--warning); }
+        .topic-row.good .topic-bar span { background: var(--success); }
+        .topic-row.great .topic-bar span { background: var(--primary); }
+
+        .rd-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .rd-actions .btn { flex: 1 1 150px; }
+        .btn-sm { padding: 9px 13px; font-size: 12px; border-radius: 11px; }
+        .btn-sm svg { width: 15px; height: 15px; }
+
+        .question-card.filtered-out { display: none !important; }
+
+        .switch-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .switch-btn svg { width: 16px; height: 16px; }
+        .switch-btn.is-on {
+            background: var(--primary-soft);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .accent-row { display: flex; gap: 9px; flex-wrap: wrap; }
+        .accent-dot {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            box-shadow: inset 0 0 0 2px var(--surface);
+            transition: transform 0.18s ease, border-color 0.18s ease;
+        }
+        .accent-dot:hover { transform: scale(1.12); }
+        .accent-dot.active { border-color: var(--text); }
+        .accent-dot:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+        .accent-hint { margin: 9px 0 0; font-size: 10.5px; line-height: 1.45; color: var(--muted); }
+
+        .music-btn.loading .music-note { animation: pulseText 0.9s ease-in-out infinite; }
+        .music-btn.loading .eq { display: flex; opacity: 0.55; }
+        .music-btn.loading .music-note { display: none; }
+        .music-btn.loading .eq i { animation-play-state: paused; }
 
         /* ============================================================
            10. MOBILE BAR, DRAWER & FOOTER
@@ -1461,7 +1571,7 @@
         <section class="questions-col">
             <div class="ai-notice" role="note">
                 <div class="ai-badge" aria-hidden="true">AI</div>
-                <p>Đây Là Đáp Án Được Trích Xuất Từ AI, Các Bạn Tự Kiểm Tra Nếu Sai Thì Báo Mình, Mình Sửa. <strong>Danh Cảm Ơn !</strong></p>
+                <p>Đây Là Đáp Án Được Trích Xuất Từ AI, Các Bạn Tự Kiểm Tra Nếu Sai Thì Báo Mình, Mình Sửa. <strong> Cảm Ơn !</strong></p>
             </div>
 
             <div id="result-banner" class="result-banner hidden" role="status" aria-live="polite">
@@ -1483,6 +1593,52 @@
                     <button type="button" class="btn btn-light" onclick="resetExam()">Làm lại</button>
                 </div>
             </div>
+
+            <section id="result-detail" class="result-detail hidden" aria-label="Thống kê chi tiết bài làm">
+                <div class="rd-head">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 19V5M4 19h16"></path>
+                            <path d="M8 16v-4M12 16V8M16 16v-7"></path>
+                        </svg>
+                        Thống kê theo chủ đề
+                    </h3>
+                    <span class="pill" id="rd-percent">0%</span>
+                </div>
+                <div class="rd-summary" id="rd-summary"></div>
+                <div class="topic-list" id="topic-list"></div>
+                <div class="rd-actions">
+                    <button type="button" class="btn btn-ghost btn-sm" id="wrong-filter-btn" onclick="toggleWrongOnly()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <span id="wrong-filter-label">Xem lại lỗi sai</span>
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="retryWrong()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 12a9 9 0 1015.5-6.4"></path>
+                            <path d="M21 3v6h-6"></path>
+                        </svg>
+                        Làm lại câu sai
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="exportResultImage()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 3v12"></path>
+                            <path d="M7 10l5 5 5-5"></path>
+                            <path d="M4 21h16"></path>
+                        </svg>
+                        Tải ảnh kết quả
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="copyAnswers()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                            <path d="M5 15V5a2 2 0 012-2h10"></path>
+                        </svg>
+                        Sao chép đáp án
+                    </button>
+                </div>
+            </section>
 
             <div id="questions-container" class="questions"></div>
 
@@ -1516,25 +1672,24 @@
                 <p class="hint" id="progress-hint">Bạn chưa trả lời câu nào. Bắt đầu làm bài nhé!</p>
             </div>
 
-            <!-- Thông tin thí sinh -->
+            <!-- Xáo trộn đề -->
             <div class="card">
-                <div class="card-head">
+                <div class="card-head" style="margin-bottom:0">
                     <h3>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <circle cx="12" cy="8" r="4"></circle>
-                            <path d="M4 21a8 8 0 0116 0"></path>
+                            <path d="M3 7h4l10 10h4M3 17h4l3-3M14 7l3-3"></path>
+                            <path d="M18 4l3 3-3 3M18 14l3 3-3 3"></path>
                         </svg>
-                        Thông tin thí sinh
+                        Xáo trộn đề
                     </h3>
                 </div>
-                <div class="field">
-                    <label for="student-name">Họ và tên học sinh</label>
-                    <input type="text" id="student-name" placeholder="Nhập họ và tên..." autocomplete="name">
-                </div>
-                <div class="field">
-                    <label for="student-class">Lớp</label>
-                    <input type="text" id="student-class" placeholder="VD: 12A1" autocomplete="off">
-                </div>
+                <p class="hint" style="margin:4px 0 0">Mặc định giữ nguyên thứ tự. Bấm nút bên dưới nếu muốn đảo câu hỏi và đáp án.</p>
+                <button type="button" class="btn btn-ghost btn-sm switch-btn" id="shuffle-btn" onclick="toggleShuffle()" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path>
+                    </svg>
+                    <span id="shuffle-label">Bật xáo trộn</span>
+                </button>
             </div>
 
             <!-- Danh sách câu hỏi -->
@@ -1563,6 +1718,13 @@
                             <path d="M5 13l4 4L19 7"></path>
                         </svg>
                         Nộp bài &amp; xem giải chi tiết
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-block btn-sm" style="margin-top:8px" onclick="resetExam()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 12a9 9 0 1015.5-6.4"></path>
+                            <path d="M21 3v6h-6"></path>
+                        </svg>
+                        Làm lại từ đầu
                     </button>
                 </div>
             </div>
@@ -1609,7 +1771,25 @@
                     <input type="range" id="music-volume" min="0" max="100" step="1" value="35" aria-label="Âm lượng nhạc nền">
                     <span id="volume-label">35%</span>
                 </div>
-                <p class="music-note-text">Chạm nút phát để bật nhạc nền. Bạn có thể tắt bất cứ lúc nào.</p>
+                <p class="music-note-text">Nhạc chỉ phát khi bạn bấm nút. Trình duyệt chặn tự phát nên mình để mặc định tắt cho nhẹ máy.</p>
+            </div>
+
+            <!-- Màu chủ đạo -->
+            <div class="card">
+                <div class="card-head">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="M12 3a9 9 0 000 18c1.7 0 2-1.2 1.2-2.2-.8-1 0-2.3 1.3-2.3H17a4 4 0 004-4c0-5-4-9.5-9-9.5z"></path>
+                            <circle cx="7.5" cy="10.5" r="1"></circle>
+                            <circle cx="12" cy="7.5" r="1"></circle>
+                            <circle cx="16.5" cy="10.5" r="1"></circle>
+                        </svg>
+                        Màu chủ đạo
+                    </h3>
+                </div>
+                <div class="accent-row" id="accent-row"></div>
+                <p class="accent-hint">Chọn màu bạn thích, lựa chọn được ghi nhớ cho lần sau.</p>
             </div>
         </aside>
     </main>
@@ -2165,12 +2345,83 @@
            Cách 2: để trống file và dùng video YouTube bên dưới.
            ===================================================================== */
         const MUSIC = {
-            file: "",
+            file: "lofi-study.mp3",
             youtubeId: "9kzE8isXlQY",
-            defaultVolume: 35
+            defaultVolume: 35,
+            autoplay: true
         };
 
         const TOTAL = questionsData.length;
+        const EXAM_SECONDS = 45 * 60;
+        const STORAGE_KEY = 'gdqp-progress-v2';
+
+        /* Chủ đề từng câu (dùng cho bảng thống kê sau khi nộp) */
+        const TOPIC_MAP = {
+            1: 'An ninh quốc gia',
+            2: 'QĐND & CAND',
+            3: 'QĐND & CAND',
+            4: 'QĐND & CAND',
+            5: 'An ninh quốc gia',
+            6: 'Lịch sử & truyền thống',
+            7: 'An ninh quốc gia',
+            8: 'Biển đảo & biên giới',
+            9: 'Tuyển sinh QS - CA',
+            10: 'Tuyển sinh QS - CA',
+            11: 'Tuyển sinh QS - CA',
+            12: 'Biển đảo & biên giới',
+            13: 'An ninh quốc gia',
+            14: 'Tuyển sinh QS - CA',
+            15: 'Lịch sử & truyền thống',
+            16: 'Biển đảo & biên giới',
+            17: 'QĐND & CAND',
+            18: 'QĐND & CAND',
+            19: 'Kỷ luật & lối sống',
+            20: 'QĐND & CAND',
+            21: 'An ninh mạng',
+            22: 'Lịch sử & truyền thống',
+            23: 'Tuyển sinh QS - CA',
+            24: 'QĐND & CAND',
+            25: 'Tuyển sinh QS - CA',
+            26: 'QĐND & CAND',
+            27: 'Tuyển sinh QS - CA',
+            28: 'Nghĩa vụ & trách nhiệm',
+            29: 'Tuyển sinh QS - CA',
+            30: 'Tuyển sinh QS - CA',
+            31: 'Tuyển sinh QS - CA',
+            32: 'An ninh mạng',
+            33: 'Tuyển sinh QS - CA',
+            34: 'QĐND & CAND',
+            35: 'Biển đảo & biên giới',
+            36: 'An ninh mạng',
+            37: 'QĐND & CAND',
+            38: 'Lịch sử & truyền thống',
+            39: 'QĐND & CAND',
+            40: 'QĐND & CAND'
+        };
+
+        /* Bảng màu chủ đạo */
+        const ACCENTS = {
+            indigo: { primary: '#4f46e5', accent: '#0ea5e9', label: 'Tím xanh' },
+            emerald: { primary: '#059669', accent: '#14b8a6', label: 'Xanh lá' },
+            sunset: { primary: '#ea580c', accent: '#f59e0b', label: 'Cam hoàng hôn' },
+            rose: { primary: '#e11d48', accent: '#f43f5e', label: 'Đỏ hồng' },
+            violet: { primary: '#7c3aed', accent: '#a855f7', label: 'Tím mộng' },
+            ocean: { primary: '#0369a1', accent: '#06b6d4', label: 'Xanh biển' }
+        };
+
+        /* Trạng thái đề thi (hỗ trợ xáo trộn + làm lại câu sai) */
+        const ORIGIN = questionsData.map(function (_, i) { return i; });
+        let activeOrigins = ORIGIN.slice();
+        let displayOrder = ORIGIN.slice();
+        let optionOrder = {};
+        ORIGIN.forEach(function (origin) {
+            optionOrder[origin] = questionsData[origin].options.map(function (_, i) { return i; });
+        });
+        let shuffleEnabled = false;
+        let onlyWrong = false;
+        let practiceMode = false;
+        let restoredProgress = false;
+
         const rootEl = document.documentElement;
         const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>';
         const X_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>';
@@ -2188,9 +2439,14 @@
         /* Âm thanh nền */
         let musicWanted = false;
         let musicPlaying = false;
+        let musicLoading = false;
         let musicAudio = null;
         let musicFileFailed = false;
         let musicPlayerYt = null;
+        let musicAutoTried = false;
+        let musicCreating = false;
+        let musicGestureArmed = false;
+        let musicGestureHandler = null;
         let ytApiLoading = false;
         let ytApiCallbacks = [];
         let currentVolume = (function () {
@@ -2208,16 +2464,39 @@
 
         function init() {
             applyThemeMeta();
-            bindStudentInfo();
+            applySavedAccent();
+            restoreProgress();
+
             renderQuestions();
             renderPalette();
+            applyAnswersToDom();
             updateProgress();
             updateTimerDisplay();
-            startTimer();
+            updateExamMeta();
+            updateShuffleUI();
+            updateAccentUI();
             setupMusicUI();
             setupCursorGlow();
             updateToolButtons();
             setMusicPlaying(false);
+
+            if (isSubmitted) {
+                showSubmittedState(true);
+            } else {
+                startTimer();
+            }
+
+            if (restoredProgress) {
+                window.setTimeout(function () {
+                    toast(isSubmitted ? 'Đã khôi phục kết quả bài làm trước đó 📌' : 'Đã khôi phục tiến trình làm bài. Làm tiếp nhé! 📌', 'ok');
+                }, 500);
+            }
+
+            window.setInterval(saveProgress, 5000);
+            window.addEventListener('beforeunload', saveProgress);
+            document.addEventListener('visibilitychange', function () {
+                if (document.visibilityState === 'hidden') saveProgress();
+            });
 
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
@@ -2229,6 +2508,9 @@
             window.addEventListener('resize', function () {
                 if (window.innerWidth >= 1024) closeSidebar();
             });
+
+            preloadYouTubeApi();
+            initMusicAutoplay();
         }
 
         /* =====================================================================
@@ -2237,6 +2519,56 @@
         function applyThemeMeta() {
             const meta = document.getElementById('meta-theme');
             if (meta) meta.setAttribute('content', rootEl.classList.contains('dark') ? '#060a13' : '#edf1f9');
+        }
+
+        /* =====================================================================
+           MÀU CHỦ ĐẠO
+           ===================================================================== */
+        function hexToRgba(hex, alpha) {
+            const n = parseInt(hex.slice(1), 16);
+            return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + alpha + ')';
+        }
+
+        function getAccentKey() {
+            try {
+                const saved = localStorage.getItem('gdqp-accent');
+                if (saved && ACCENTS[saved]) return saved;
+            } catch (e) { /* bỏ qua */ }
+            return 'indigo';
+        }
+
+        function applyAccent(key, silent) {
+            const c = ACCENTS[key] || ACCENTS.indigo;
+            const s = rootEl.style;
+            s.setProperty('--primary', c.primary);
+            s.setProperty('--primary-strong', c.primary);
+            s.setProperty('--primary-soft', hexToRgba(c.primary, 0.12));
+            s.setProperty('--accent', c.accent);
+            s.setProperty('--accent-soft', hexToRgba(c.accent, 0.14));
+            s.setProperty('--grad', 'linear-gradient(135deg, ' + c.primary + ', ' + c.accent + ')');
+            try { localStorage.setItem('gdqp-accent', key); } catch (e) { /* bỏ qua */ }
+            if (!silent) toast('Đã đổi màu chủ đạo 🎨', 'ok');
+        }
+
+        function applySavedAccent() {
+            applyAccent(getAccentKey(), true);
+        }
+
+        function setAccent(key) {
+            applyAccent(key, false);
+            updateAccentUI();
+        }
+
+        function updateAccentUI() {
+            const row = document.getElementById('accent-row');
+            if (!row) return;
+            const current = getAccentKey();
+            row.innerHTML = Object.keys(ACCENTS).map(function (key) {
+                const c = ACCENTS[key];
+                return '<button type="button" class="accent-dot' + (key === current ? ' active' : '') + '" ' +
+                    'style="background:linear-gradient(135deg,' + c.primary + ',' + c.accent + ')" ' +
+                    'onclick="setAccent(\'' + key + '\')" aria-label="Màu ' + c.label + '" title="' + c.label + '"></button>';
+            }).join('');
         }
 
         function toggleTheme() {
@@ -2477,27 +2809,29 @@
 
         function renderQuestions() {
             const container = document.getElementById('questions-container');
-            container.innerHTML = questionsData.map(function (q, index) {
-                const optionsHtml = q.options.map(function (opt, optIndex) {
-                    const letter = String.fromCharCode(65 + optIndex);
+            container.innerHTML = displayOrder.map(function (origin, pos) {
+                const q = questionsData[origin];
+                const order = optionOrder[origin] || q.options.map(function (_, i) { return i; });
+                const optionsHtml = order.map(function (optIndex, displayIdx) {
+                    const letter = String.fromCharCode(65 + displayIdx);
                     return '' +
-                        '<button type="button" class="option" data-q="' + index + '" data-o="' + optIndex + '" aria-pressed="false" aria-label="Đáp án ' + letter + '">' +
+                        '<button type="button" class="option" data-q="' + origin + '" data-o="' + optIndex + '" data-pos="' + displayIdx + '" aria-pressed="false" aria-label="Đáp án ' + letter + '">' +
                             '<span class="option-key">' + letter + '</span>' +
-                            '<span class="option-text">' + esc(opt) + '</span>' +
+                            '<span class="option-text">' + esc(q.options[optIndex]) + '</span>' +
                             '<span class="mark mark-check" aria-hidden="true">' + CHECK_SVG + '</span>' +
                             '<span class="mark mark-x" aria-hidden="true">' + X_SVG + '</span>' +
                         '</button>';
                 }).join('');
 
                 return '' +
-                    '<article class="question-card" id="qcard-' + index + '" style="animation-delay:' + Math.min(index * 26, 620) + 'ms">' +
+                    '<article class="question-card" id="qcard-' + origin + '" data-origin="' + origin + '" style="animation-delay:' + Math.min(pos * 26, 620) + 'ms">' +
                         '<div class="q-head">' +
-                            '<span class="q-number">Câu ' + (index + 1) + '</span>' +
-                            '<span class="chip" id="status-' + index + '">Chưa trả lời</span>' +
+                            '<span class="q-number">Câu ' + (pos + 1) + '</span>' +
+                            '<span class="chip" id="status-' + origin + '">Chưa trả lời</span>' +
                         '</div>' +
                         '<h3 class="q-text">' + esc(q.question) + '</h3>' +
-                        '<div class="options" role="group" aria-label="Chọn đáp án câu ' + (index + 1) + '">' + optionsHtml + '</div>' +
-                        '<div class="explanation" id="explanation-' + index + '">' +
+                        '<div class="options" role="group" aria-label="Chọn đáp án câu ' + (pos + 1) + '">' + optionsHtml + '</div>' +
+                        '<div class="explanation" id="explanation-' + origin + '">' +
                             '<div class="explanation-title">' + BULB_SVG + '<span>Giải thích chi tiết</span></div>' +
                             '<p>' + esc(q.explanation) + '</p>' +
                         '</div>' +
@@ -2513,10 +2847,54 @@
 
         function renderPalette() {
             const grid = document.getElementById('palette-grid');
-            grid.innerHTML = questionsData.map(function (_, i) {
-                return '<button type="button" class="palette-btn" id="palette-' + i + '" onclick="scrollToQuestion(' + i + ')" aria-label="Đi đến câu ' + (i + 1) + '">' + (i + 1) + '</button>';
+            grid.innerHTML = displayOrder.map(function (origin, pos) {
+                return '<button type="button" class="palette-btn" id="palette-' + origin + '" onclick="scrollToQuestion(' + origin + ')" aria-label="Đi đến câu ' + (pos + 1) + '">' + (pos + 1) + '</button>';
             }).join('');
-            for (let i = 0; i < TOTAL; i++) updatePaletteButton(i, false);
+            displayOrder.forEach(function (origin) { updatePaletteButton(origin, false); });
+        }
+
+        function applyAnswersToDom() {
+            if (isSubmitted) return;
+            displayOrder.forEach(function (origin) {
+                const card = document.getElementById('qcard-' + origin);
+                if (!card) return;
+                const answer = userAnswers[origin];
+                card.querySelectorAll('.option').forEach(function (btn) {
+                    const selected = answer !== undefined && parseInt(btn.dataset.o, 10) === answer;
+                    btn.classList.toggle('selected', selected);
+                    btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+                });
+                const status = document.getElementById('status-' + origin);
+                if (status) {
+                    if (answer === undefined) {
+                        status.textContent = 'Chưa trả lời';
+                        status.className = 'chip';
+                    } else {
+                        status.textContent = 'Đã trả lời';
+                        status.className = 'chip answered';
+                    }
+                }
+            });
+        }
+
+        function updateShuffleUI() {
+            const btn = document.getElementById('shuffle-btn');
+            const label = document.getElementById('shuffle-label');
+            if (btn) {
+                btn.classList.toggle('is-on', shuffleEnabled);
+                btn.setAttribute('aria-pressed', shuffleEnabled ? 'true' : 'false');
+            }
+            if (label) label.textContent = shuffleEnabled ? 'Đang xáo trộn · bấm để tắt' : 'Bật xáo trộn';
+        }
+
+        function updateExamMeta() {
+            const subtitle = document.querySelector('.brand-text p');
+            if (!subtitle) return;
+            if (practiceMode) {
+                subtitle.textContent = 'Ôn lại câu sai · ' + activeOrigins.length + ' câu';
+            } else {
+                subtitle.textContent = 'Mã đề 301 · 45 phút · ' + TOTAL + ' câu trắc nghiệm';
+            }
         }
 
         /* =====================================================================
@@ -2545,6 +2923,7 @@
 
             updatePaletteButton(qIndex, true);
             updateProgress();
+            saveProgress();
 
             if (changed) {
                 sfxSelect();
@@ -2586,8 +2965,12 @@
         }
 
         function updateProgress() {
-            const answered = Object.keys(userAnswers).length;
-            const pct = Math.round((answered / TOTAL) * 100);
+            const total = activeOrigins.length;
+            let answered = 0;
+            activeOrigins.forEach(function (origin) {
+                if (userAnswers[origin] !== undefined) answered += 1;
+            });
+            const pct = Math.round((answered / total) * 100);
 
             const counter = document.getElementById('answered-counter');
             const mobileCounter = document.getElementById('mobile-answered');
@@ -2595,15 +2978,15 @@
             const mobileFill = document.getElementById('mobile-progress-fill');
             const hint = document.getElementById('progress-hint');
 
-            if (counter) counter.textContent = answered + '/' + TOTAL;
-            if (mobileCounter) mobileCounter.textContent = answered + '/' + TOTAL;
+            if (counter) counter.textContent = answered + '/' + total;
+            if (mobileCounter) mobileCounter.textContent = answered + '/' + total;
             if (fill) fill.style.width = pct + '%';
             if (mobileFill) mobileFill.style.width = pct + '%';
 
             if (hint) {
                 if (answered === 0) hint.textContent = 'Bạn chưa trả lời câu nào. Bắt đầu làm bài nhé!';
-                else if (answered < TOTAL) hint.textContent = 'Còn ' + (TOTAL - answered) + ' câu chưa trả lời. Cố lên!';
-                else hint.textContent = 'Tuyệt vời! Bạn đã trả lời đủ ' + TOTAL + ' câu.';
+                else if (answered < total) hint.textContent = 'Còn ' + (total - answered) + ' câu chưa trả lời. Cố lên!';
+                else hint.textContent = 'Tuyệt vời! Bạn đã trả lời đủ ' + total + ' câu.';
             }
         }
 
@@ -2709,13 +3092,17 @@
            ===================================================================== */
         function confirmSubmit() {
             if (isSubmitted) return;
-            const answered = Object.keys(userAnswers).length;
+            let answered = 0;
+            activeOrigins.forEach(function (origin) {
+                if (userAnswers[origin] !== undefined) answered += 1;
+            });
+            const total = activeOrigins.length;
             const msg = document.getElementById('modal-msg');
 
-            if (answered < TOTAL) {
-                msg.textContent = 'Bạn mới trả lời ' + answered + '/' + TOTAL + ' câu. Vẫn còn ' + (TOTAL - answered) + ' câu chưa làm. Bạn có chắc muốn nộp bài và xem giải chi tiết?';
+            if (answered < total) {
+                msg.textContent = 'Bạn mới trả lời ' + answered + '/' + total + ' câu. Vẫn còn ' + (total - answered) + ' câu chưa làm. Bạn có chắc muốn nộp bài và xem giải chi tiết?';
             } else {
-                msg.textContent = 'Bạn đã hoàn thành tất cả ' + TOTAL + ' câu. Nộp bài để xem điểm và giải thích chi tiết nhé!';
+                msg.textContent = 'Bạn đã hoàn thành tất cả ' + total + ' câu. Nộp bài để xem điểm và giải thích chi tiết nhé!';
             }
 
             const modal = document.getElementById('confirm-modal');
@@ -2736,40 +3123,83 @@
             syncBodyLock();
         }
 
-        function submitExam() {
-            if (isSubmitted) return;
-
-            closeModal();
-            closeSidebar();
-            isSubmitted = true;
-            clearInterval(timerInterval);
-
+        function hideSubmitButtons() {
             const desktopSubmit = document.getElementById('submit-btn');
             const mobileSubmit = document.getElementById('mobile-submit-btn');
             if (desktopSubmit) desktopSubmit.classList.add('hidden');
             if (mobileSubmit) mobileSubmit.classList.add('hidden');
+        }
 
+        function showSubmitButtons() {
+            const desktopSubmit = document.getElementById('submit-btn');
+            const mobileSubmit = document.getElementById('mobile-submit-btn');
+            if (desktopSubmit) desktopSubmit.classList.remove('hidden');
+            if (mobileSubmit) mobileSubmit.classList.remove('hidden');
+        }
+
+        function submitExam(options) {
+            if (isSubmitted) return;
+            const quiet = !!(options && options.quiet);
+
+            if (!quiet) {
+                closeModal();
+                closeSidebar();
+            }
+            isSubmitted = true;
+            clearInterval(timerInterval);
+            hideSubmitButtons();
+
+            const stats = gradeExam();
+            updateResults(stats.correct, stats.wrong, stats.empty, stats.score10);
+
+            const scoreCard = document.getElementById('score-card');
+            if (scoreCard) scoreCard.classList.remove('hidden');
+
+            document.title = 'Kết quả · Kiểm tra GDQP 12 - Mã đề 301';
+            updateProgress();
+            saveProgress();
+
+            if (!quiet) {
+                launchConfetti();
+                sfxSubmit();
+                window.scrollTo({ top: 0, behavior: effectsOn ? 'smooth' : 'auto' });
+                toast('Đã nộp bài! Xem thống kê và giải thích chi tiết bên dưới nhé.', 'ok');
+            }
+        }
+
+        function showSubmittedState() {
+            clearInterval(timerInterval);
+            hideSubmitButtons();
+            const stats = gradeExam();
+            updateResults(stats.correct, stats.wrong, stats.empty, stats.score10);
+            const scoreCard = document.getElementById('score-card');
+            if (scoreCard) scoreCard.classList.remove('hidden');
+            document.title = 'Kết quả · Kiểm tra GDQP 12 - Mã đề 301';
+            updateProgress();
+        }
+
+        function gradeExam() {
             let correctCount = 0;
             let wrongCount = 0;
             let emptyCount = 0;
 
-            questionsData.forEach(function (q, index) {
-                const userChoice = userAnswers[index];
-                const card = document.getElementById('qcard-' + index);
-                const status = document.getElementById('status-' + index);
+            activeOrigins.forEach(function (origin) {
+                const q = questionsData[origin];
+                const userChoice = userAnswers[origin];
+                const card = document.getElementById('qcard-' + origin);
+                const status = document.getElementById('status-' + origin);
 
                 if (card) {
                     card.classList.add('submitted');
+                    card.classList.remove('filtered-out');
                     card.querySelectorAll('.option').forEach(function (btn) {
                         const optIndex = parseInt(btn.dataset.o, 10);
                         btn.disabled = true;
                         btn.classList.remove('selected');
                         btn.setAttribute('aria-pressed', 'false');
 
-                        if (optIndex === q.correct) btn.classList.add('correct');
-                        if (userChoice !== undefined && optIndex === userChoice && userChoice !== q.correct) {
-                            btn.classList.add('wrong');
-                        }
+                        btn.classList.toggle('correct', optIndex === q.correct);
+                        btn.classList.toggle('wrong', userChoice !== undefined && optIndex === userChoice && userChoice !== q.correct);
                     });
                 }
 
@@ -2789,30 +3219,20 @@
                     }
                 }
 
-                const explanation = document.getElementById('explanation-' + index);
+                const explanation = document.getElementById('explanation-' + origin);
                 if (explanation) explanation.classList.add('open');
 
-                updatePaletteButton(index, false);
+                updatePaletteButton(origin, false);
             });
 
-            const score10 = ((correctCount / TOTAL) * 10).toFixed(2);
-            updateResults(correctCount, wrongCount, emptyCount, score10);
-            updateProgress();
-
-            const scoreCard = document.getElementById('score-card');
-            if (scoreCard) scoreCard.classList.remove('hidden');
-
-            document.title = 'Kết quả · Kiểm tra GDQP 12 - Mã đề 301';
-
-            launchConfetti();
-            sfxSubmit();
-
-            window.scrollTo({ top: 0, behavior: effectsOn ? 'smooth' : 'auto' });
-            toast('Đã nộp bài! Kéo xuống để xem giải thích chi tiết từng câu.', 'ok');
+            const total = activeOrigins.length;
+            const score10 = ((correctCount / total) * 10).toFixed(2);
+            return { correct: correctCount, wrong: wrongCount, empty: emptyCount, total: total, score10: score10 };
         }
 
         function updateResults(correct, wrong, empty, score) {
-            const percent = Math.round((correct / TOTAL) * 100);
+            const total = activeOrigins.length;
+            const percent = Math.round((correct / total) * 100);
 
             const banner = document.getElementById('result-banner');
             if (banner) banner.classList.remove('hidden');
@@ -2821,7 +3241,7 @@
             setText('r-wrong', wrong);
             setText('r-empty', empty);
             setText('result-score', score);
-            setText('score-display', correct + '/' + TOTAL);
+            setText('score-display', correct + '/' + total);
             setText('score-detail', 'Điểm: ' + score + ' / 10');
 
             const ring = document.getElementById('score-ring');
@@ -2844,7 +3264,52 @@
 
             setText('result-title', title);
             setText('result-emoji', emoji);
-            setText('result-summary', 'Bạn trả lời đúng ' + correct + '/' + TOTAL + ' câu · Điểm ' + score + '/10. Kéo xuống để xem giải thích từng câu.');
+            setText('result-summary', 'Bạn trả lời đúng ' + correct + '/' + total + ' câu · Điểm ' + score + '/10. Kéo xuống để xem giải thích từng câu.');
+
+            renderResultDetail(correct, wrong, empty, total, score);
+        }
+
+        function renderResultDetail(correct, wrong, empty, total, score) {
+            const detail = document.getElementById('result-detail');
+            if (detail) detail.classList.remove('hidden');
+
+            setText('rd-percent', Math.round((correct / total) * 100) + '%');
+
+            const summary = document.getElementById('rd-summary');
+            if (summary) {
+                const tags = [];
+                tags.push('<span class="rd-tag">Điểm: <b>' + score + '/10</b></span>');
+                tags.push('<span class="rd-tag">Đúng: <b style="color:var(--success)">' + correct + '</b></span>');
+                tags.push('<span class="rd-tag">Sai: <b style="color:var(--danger)">' + wrong + '</b></span>');
+                tags.push('<span class="rd-tag">Bỏ trống: <b style="color:var(--warning)">' + empty + '</b></span>');
+                if (practiceMode) tags.push('<span class="rd-tag">Chế độ: <b>Ôn câu sai</b></span>');
+                summary.innerHTML = tags.join('');
+            }
+
+            renderTopicStats();
+        }
+
+        function renderTopicStats() {
+            const list = document.getElementById('topic-list');
+            if (!list) return;
+
+            const stats = {};
+            activeOrigins.forEach(function (origin) {
+                const topic = TOPIC_MAP[questionsData[origin].id] || 'Khác';
+                if (!stats[topic]) stats[topic] = { correct: 0, total: 0 };
+                stats[topic].total += 1;
+                if (userAnswers[origin] === questionsData[origin].correct) stats[topic].correct += 1;
+            });
+
+            list.innerHTML = Object.keys(stats).map(function (topic) {
+                const item = stats[topic];
+                const pct = Math.round((item.correct / item.total) * 100);
+                const cls = pct >= 90 ? ' great' : pct >= 60 ? ' good' : pct >= 35 ? ' mid' : '';
+                return '<div class="topic-row' + cls + '">' +
+                    '<div class="topic-top"><span>' + esc(topic) + '</span><span>' + item.correct + '/' + item.total + ' · ' + pct + '%</span></div>' +
+                    '<div class="topic-bar"><span style="width:' + pct + '%"></span></div>' +
+                '</div>';
+            }).join('');
         }
 
         function setText(id, value) {
@@ -2853,50 +3318,436 @@
         }
 
         function resetExam() {
-            if (isSubmitted && !window.confirm('Bạn có chắc muốn làm lại bài thi? Toàn bộ câu trả lời sẽ bị xoá.')) return;
+            const hasProgress = isSubmitted || practiceMode || Object.keys(userAnswers).length > 0;
+            if (hasProgress && !window.confirm('Bạn có chắc muốn làm lại bài thi? Toàn bộ câu trả lời sẽ bị xoá.')) return;
+            startAttempt(ORIGIN.slice(), false);
+            toast('Đã làm mới bài thi. Chúc bạn làm bài tốt! 🍀', 'ok');
+        }
 
-            userAnswers = {};
+        function startAttempt(origins, isPractice) {
+            activeOrigins = origins.slice();
+            practiceMode = !!isPractice;
+            timeLeft = practiceMode ? Math.max(120, activeOrigins.length * 60) : EXAM_SECONDS;
             isSubmitted = false;
-            timeLeft = 45 * 60;
+            onlyWrong = false;
+            userAnswers = {};
             clearInterval(timerInterval);
 
-            const desktopSubmit = document.getElementById('submit-btn');
-            const mobileSubmit = document.getElementById('mobile-submit-btn');
-            if (desktopSubmit) desktopSubmit.classList.remove('hidden');
-            if (mobileSubmit) mobileSubmit.classList.remove('hidden');
-
-            const banner = document.getElementById('result-banner');
-            if (banner) banner.classList.add('hidden');
-            const scoreCard = document.getElementById('score-card');
-            if (scoreCard) scoreCard.classList.add('hidden');
-
+            applyOrder();
+            showSubmitButtons();
+            hideResults();
             closeModal();
             closeSidebar();
 
             renderQuestions();
             renderPalette();
+            applyAnswersToDom();
             updateProgress();
             updateTimerDisplay();
+            updateExamMeta();
+            updateShuffleUI();
             startTimer();
             updateToolButtons();
 
             document.title = 'Kiểm tra GDQP 12 - Mã đề 301';
             window.scrollTo({ top: 0, behavior: effectsOn ? 'smooth' : 'auto' });
-            toast('Đã làm mới bài thi. Chúc bạn làm bài tốt! 🍀', 'ok');
+            saveProgress();
+        }
+
+        function applyOrder() {
+            displayOrder = activeOrigins.slice();
+            ORIGIN.forEach(function (origin) {
+                optionOrder[origin] = questionsData[origin].options.map(function (_, i) { return i; });
+            });
+            if (shuffleEnabled) {
+                shuffleArray(displayOrder);
+                displayOrder.forEach(function (origin) { shuffleArray(optionOrder[origin]); });
+            }
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i -= 1) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const tmp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = tmp;
+            }
+            return arr;
+        }
+
+        function hideResults() {
+            const banner = document.getElementById('result-banner');
+            if (banner) banner.classList.add('hidden');
+            const scoreCard = document.getElementById('score-card');
+            if (scoreCard) scoreCard.classList.add('hidden');
+            const detail = document.getElementById('result-detail');
+            if (detail) detail.classList.add('hidden');
+        }
+
+        function toggleShuffle() {
+            if (isSubmitted) {
+                toast('Hãy bấm "Làm lại" trước khi xáo trộn đề nhé.', 'warn');
+                return;
+            }
+            if (Object.keys(userAnswers).length > 0 && !window.confirm('Xáo trộn sẽ đổi thứ tự câu hỏi và đáp án. Các đáp án đã chọn vẫn được giữ. Tiếp tục?')) return;
+
+            shuffleEnabled = !shuffleEnabled;
+            applyOrder();
+            renderQuestions();
+            renderPalette();
+            applyAnswersToDom();
+            updateProgress();
+            updateShuffleUI();
+            saveProgress();
+            toast(shuffleEnabled ? 'Đã xáo trộn câu hỏi và đáp án 🔀' : 'Đã trả về thứ tự gốc của đề', 'info');
+        }
+
+        function toggleWrongOnly() {
+            if (!isSubmitted) return;
+
+            const wrongOrigins = activeOrigins.filter(function (origin) {
+                return userAnswers[origin] !== questionsData[origin].correct;
+            });
+            if (!wrongOrigins.length) {
+                toast('Tuyệt vời! Bạn không có câu sai nào 🎉', 'ok');
+                return;
+            }
+
+            onlyWrong = !onlyWrong;
+            displayOrder.forEach(function (origin) {
+                const card = document.getElementById('qcard-' + origin);
+                if (!card) return;
+                const isWrong = userAnswers[origin] !== questionsData[origin].correct;
+                card.classList.toggle('filtered-out', onlyWrong && !isWrong);
+            });
+
+            const label = document.getElementById('wrong-filter-label');
+            if (label) label.textContent = onlyWrong ? 'Hiện tất cả câu' : 'Xem lại lỗi sai';
+
+            if (onlyWrong) {
+                window.setTimeout(function () { scrollToQuestion(wrongOrigins[0]); }, 60);
+                toast('Đang chỉ hiện ' + wrongOrigins.length + ' câu sai hoặc bỏ trống.', 'info');
+            }
+        }
+
+        function retryWrong() {
+            if (!isSubmitted) {
+                toast('Hãy nộp bài trước để biết câu nào sai nhé.', 'warn');
+                return;
+            }
+            const wrongOrigins = activeOrigins.filter(function (origin) {
+                return userAnswers[origin] !== questionsData[origin].correct;
+            });
+            if (!wrongOrigins.length) {
+                toast('Tuyệt vời! Bạn không có câu sai nào để ôn lại 🎉', 'ok');
+                return;
+            }
+            if (!window.confirm('Bắt đầu ôn lại ' + wrongOrigins.length + ' câu sai? Điểm sẽ được tính trên ' + wrongOrigins.length + ' câu này.')) return;
+
+            startAttempt(wrongOrigins, true);
+            toast('Bắt đầu ôn lại ' + wrongOrigins.length + ' câu sai. Cố lên! 💪', 'ok');
         }
 
         /* =====================================================================
-           THÔNG TIN THÍ SINH (LƯU LẠI)
+           LƯU / KHÔI PHỤC TIẾN TRÌNH
            ===================================================================== */
-        function bindStudentInfo() {
-            [['student-name', 'gdqp-student-name'], ['student-class', 'gdqp-student-class']].forEach(function (pair) {
-                const el = document.getElementById(pair[0]);
-                if (!el) return;
-                try { el.value = localStorage.getItem(pair[1]) || ''; } catch (e) { /* bỏ qua */ }
-                el.addEventListener('input', function () {
-                    try { localStorage.setItem(pair[1], el.value); } catch (e) { /* bỏ qua */ }
-                });
+        function saveProgress() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    version: 2,
+                    answers: userAnswers,
+                    timeLeft: timeLeft,
+                    isSubmitted: isSubmitted,
+                    activeOrigins: activeOrigins,
+                    displayOrder: displayOrder,
+                    optionOrder: optionOrder,
+                    shuffleEnabled: shuffleEnabled,
+                    practiceMode: practiceMode,
+                    savedAt: Date.now()
+                }));
+            } catch (e) { /* bỏ qua */ }
+        }
+
+        function restoreProgress() {
+            let data = null;
+            try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) { data = null; }
+            if (!data || data.version !== 2) return;
+
+            if (data.savedAt && Date.now() - data.savedAt > 7 * 24 * 60 * 60 * 1000) {
+                try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* bỏ qua */ }
+                return;
+            }
+
+            const validOrigins = function (list) {
+                return Array.isArray(list) ? list.filter(function (n) {
+                    return typeof n === 'number' && n >= 0 && n < TOTAL;
+                }) : [];
+            };
+
+            const restoredActive = validOrigins(data.activeOrigins);
+            if (!restoredActive.length) return;
+
+            activeOrigins = restoredActive;
+            shuffleEnabled = !!data.shuffleEnabled;
+            practiceMode = !!data.practiceMode;
+
+            const savedOrder = validOrigins(data.displayOrder);
+            const sameSet = savedOrder.length === activeOrigins.length && savedOrder.every(function (n) {
+                return activeOrigins.indexOf(n) !== -1;
             });
+            displayOrder = sameSet ? savedOrder : activeOrigins.slice();
+
+            optionOrder = {};
+            activeOrigins.forEach(function (origin) {
+                const natural = questionsData[origin].options.map(function (_, i) { return i; });
+                const saved = data.optionOrder && data.optionOrder[origin];
+                const valid = Array.isArray(saved) && saved.length === natural.length && saved.every(function (n) {
+                    return natural.indexOf(n) !== -1;
+                });
+                optionOrder[origin] = valid ? saved.slice() : natural;
+            });
+
+            userAnswers = {};
+            if (data.answers && typeof data.answers === 'object') {
+                Object.keys(data.answers).forEach(function (key) {
+                    const origin = parseInt(key, 10);
+                    const value = data.answers[key];
+                    if (activeOrigins.indexOf(origin) === -1) return;
+                    if (typeof value === 'number' && value >= 0 && value < questionsData[origin].options.length) {
+                        userAnswers[origin] = value;
+                    }
+                });
+            }
+
+            isSubmitted = !!data.isSubmitted;
+            timeLeft = (typeof data.timeLeft === 'number' && data.timeLeft >= 0) ? Math.floor(data.timeLeft) : EXAM_SECONDS;
+            if (!isSubmitted && timeLeft <= 0) timeLeft = EXAM_SECONDS;
+
+            restoredProgress = Object.keys(userAnswers).length > 0 || isSubmitted || practiceMode;
+        }
+
+        /* =====================================================================
+           SAO CHÉP ĐÁP ÁN / XUẤT ẢNH KẾT QUẢ
+           ===================================================================== */
+        function computeCurrentStats() {
+            let correct = 0;
+            let wrong = 0;
+            let empty = 0;
+            activeOrigins.forEach(function (origin) {
+                const answer = userAnswers[origin];
+                if (answer === undefined) empty += 1;
+                else if (answer === questionsData[origin].correct) correct += 1;
+                else wrong += 1;
+            });
+            const total = activeOrigins.length;
+            return {
+                correct: correct,
+                wrong: wrong,
+                empty: empty,
+                total: total,
+                score: ((correct / total) * 10).toFixed(2)
+            };
+        }
+
+        function copyAnswers() {
+            if (!isSubmitted) {
+                toast('Hãy nộp bài trước khi sao chép đáp án nhé.', 'warn');
+                return;
+            }
+
+            const stats = computeCurrentStats();
+            const lines = [];
+            lines.push('KẾT QUẢ BÀI THI GDQPAN 12 · MÃ ĐỀ 301');
+            lines.push('Điểm: ' + stats.score + '/10 · Đúng ' + stats.correct + '/' + stats.total + ' câu');
+            lines.push('');
+            lines.push('ĐÁP ÁN ĐÃ CHỌN:');
+
+            let buffer = [];
+            displayOrder.forEach(function (origin, pos) {
+                const answer = userAnswers[origin];
+                const order = optionOrder[origin] || [];
+                const letter = answer === undefined ? '-' : String.fromCharCode(65 + order.indexOf(answer));
+                buffer.push((pos + 1) + '.' + letter);
+                if (buffer.length === 8) {
+                    lines.push(buffer.join('  '));
+                    buffer = [];
+                }
+            });
+            if (buffer.length) lines.push(buffer.join('  '));
+
+            const text = lines.join('\n');
+            const done = function () { toast('Đã sao chép đáp án vào clipboard 📋', 'ok'); };
+            const fallback = function () {
+                const area = document.createElement('textarea');
+                area.value = text;
+                area.style.position = 'fixed';
+                area.style.left = '-9999px';
+                document.body.appendChild(area);
+                area.select();
+                let ok = false;
+                try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+                area.remove();
+                if (ok) done();
+                else toast('Trình duyệt không cho sao chép. Bạn thử tải ảnh kết quả nhé.', 'error');
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done).catch(fallback);
+            } else {
+                fallback();
+            }
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+        }
+
+        function exportResultImage() {
+            if (!isSubmitted) {
+                toast('Hãy nộp bài trước khi tải ảnh kết quả nhé.', 'warn');
+                return;
+            }
+
+            const stats = computeCurrentStats();
+            const themeStyles = getComputedStyle(rootEl);
+            const primary = themeStyles.getPropertyValue('--primary').trim() || '#4f46e5';
+            const accent = themeStyles.getPropertyValue('--accent').trim() || '#0ea5e9';
+
+            const W = 1000;
+            const H = 1250;
+            const canvas = document.createElement('canvas');
+            canvas.width = W;
+            canvas.height = H;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                toast('Thiết bị không hỗ trợ xuất ảnh.', 'error');
+                return;
+            }
+
+            const bg = ctx.createLinearGradient(0, 0, W, H);
+            bg.addColorStop(0, primary);
+            bg.addColorStop(1, accent);
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.12)';
+            ctx.beginPath();
+            ctx.arc(880, 120, 180, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(110, 1140, 150, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(255,255,255,0.97)';
+            roundRect(ctx, 55, 55, W - 110, H - 110, 36);
+            ctx.fill();
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#64748b';
+            ctx.font = '700 20px "Segoe UI", Arial, sans-serif';
+            ctx.fillText('HỆ THỐNG TRẮC NGHIỆM GDQPAN 12', W / 2, 125);
+
+            ctx.fillStyle = '#0b1220';
+            ctx.font = '900 44px "Segoe UI", Arial, sans-serif';
+            ctx.fillText('KẾT QUẢ BÀI THI', W / 2, 188);
+
+            ctx.fillStyle = '#64748b';
+            ctx.font = '600 20px "Segoe UI", Arial, sans-serif';
+            ctx.fillText('Mã đề 301 · Giữa kỳ I' + (practiceMode ? ' · Ôn câu sai' : ''), W / 2, 225);
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = primary;
+            ctx.font = '900 108px "Segoe UI", Arial, sans-serif';
+            ctx.fillText(stats.score, W / 2 - 34, 360);
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '700 30px "Segoe UI", Arial, sans-serif';
+            ctx.fillText('/10', W / 2 + 128, 356);
+
+            const boxes = [
+                { label: 'CÂU ĐÚNG', value: stats.correct, color: '#059669' },
+                { label: 'CÂU SAI', value: stats.wrong, color: '#e11d48' },
+                { label: 'BỎ TRỐNG', value: stats.empty, color: '#d97706' }
+            ];
+            boxes.forEach(function (box, i) {
+                const bw = 250;
+                const bx = 145 + i * 270;
+                ctx.fillStyle = '#f1f5fb';
+                roundRect(ctx, bx, 420, bw, 118, 20);
+                ctx.fill();
+                ctx.textAlign = 'center';
+                ctx.fillStyle = box.color;
+                ctx.font = '900 42px "Segoe UI", Arial, sans-serif';
+                ctx.fillText(String(box.value), bx + bw / 2, 480);
+                ctx.fillStyle = '#64748b';
+                ctx.font = '700 16px "Segoe UI", Arial, sans-serif';
+                ctx.fillText(box.label, bx + bw / 2, 511);
+            });
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#0b1220';
+            ctx.font = '800 23px "Segoe UI", Arial, sans-serif';
+            ctx.fillText('THỐNG KÊ THEO CHỦ ĐỀ', 145, 605);
+
+            const topicStats = {};
+            activeOrigins.forEach(function (origin) {
+                const topic = TOPIC_MAP[questionsData[origin].id] || 'Khác';
+                if (!topicStats[topic]) topicStats[topic] = { correct: 0, total: 0 };
+                topicStats[topic].total += 1;
+                if (userAnswers[origin] === questionsData[origin].correct) topicStats[topic].correct += 1;
+            });
+
+            const topics = Object.keys(topicStats).slice(0, 8);
+            topics.forEach(function (topic, i) {
+                const item = topicStats[topic];
+                const pct = Math.round((item.correct / item.total) * 100);
+                const y = 643 + i * 54;
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#334155';
+                ctx.font = '600 18px "Segoe UI", Arial, sans-serif';
+                ctx.fillText(topic, 145, y);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#64748b';
+                ctx.font = '700 17px "Segoe UI", Arial, sans-serif';
+                ctx.fillText(item.correct + '/' + item.total + ' · ' + pct + '%', 855, y);
+                ctx.fillStyle = '#e2e8f0';
+                roundRect(ctx, 145, y + 10, 710, 12, 6);
+                ctx.fill();
+                ctx.fillStyle = pct >= 60 ? '#059669' : pct >= 35 ? '#d97706' : '#e11d48';
+                roundRect(ctx, 145, y + 10, Math.max(12, 710 * pct / 100), 12, 6);
+                ctx.fill();
+            });
+
+            const now = new Date();
+            const dateText = 'Xuất ngày ' + now.toLocaleDateString('vi-VN') + ' lúc ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '600 16px "Segoe UI", Arial, sans-serif';
+            ctx.fillText(dateText, W / 2, 1180);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.font = '500 14px "Segoe UI", Arial, sans-serif';
+            ctx.fillText('Đáp án do AI trích xuất — hãy tự kiểm tra lại.', W / 2, 1208);
+
+            canvas.toBlob(function (blob) {
+                if (!blob) {
+                    toast('Không tạo được ảnh kết quả.', 'error');
+                    return;
+                }
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'ket-qua-gdqp-12.png';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+                toast('Đã tạo ảnh kết quả. Kiểm tra thư mục tải xuống nhé! 🖼️', 'ok');
+            }, 'image/png');
         }
 
         /* =====================================================================
@@ -2929,22 +3780,51 @@
 
         function setMusicPlaying(playing) {
             musicPlaying = playing;
+            if (playing) {
+                musicLoading = false;
+                disarmMusicGesture();
+            }
             const headerBtn = document.getElementById('music-toggle');
             const playBtn = document.getElementById('music-play');
             const status = document.getElementById('music-status');
 
             if (headerBtn) {
                 headerBtn.classList.toggle('playing', playing);
+                headerBtn.classList.toggle('loading', musicLoading);
                 headerBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
             }
             if (playBtn) {
                 playBtn.classList.toggle('playing', playing);
+                playBtn.classList.toggle('loading', musicLoading);
                 playBtn.setAttribute('aria-label', playing ? 'Tạm dừng nhạc nền' : 'Phát nhạc nền');
             }
-            if (status) status.textContent = playing ? 'Đang phát · Less Talk, More Action 🎶' : 'chill chill journal · Lofi & tiếng mưa';
+            if (status) {
+                if (playing) status.textContent = 'Đang phát · Less Talk, More Action 🎶';
+                else if (musicLoading) status.textContent = 'Đang tải nhạc... ⏳';
+                else if (musicGestureArmed) status.textContent = 'Bấm vào trang để bật nhạc ▶️';
+                else status.textContent = 'chill chill journal · Lofi & tiếng mưa';
+            }
+        }
+
+        function setMusicLoading(loading) {
+            musicLoading = loading;
+            const headerBtn = document.getElementById('music-toggle');
+            const playBtn = document.getElementById('music-play');
+            const status = document.getElementById('music-status');
+            if (headerBtn) headerBtn.classList.toggle('loading', loading);
+            if (playBtn) playBtn.classList.toggle('loading', loading);
+            if (status && loading) status.textContent = 'Đang tải nhạc... ⏳';
         }
 
         function toggleMusic() {
+            if (musicLoading) {
+                musicWanted = false;
+                disarmMusicGesture();
+                setMusicLoading(false);
+                setMusicPlaying(false);
+                toast('Đã huỷ tải nhạc.', 'info');
+                return;
+            }
             if (musicPlaying) {
                 pauseMusic();
             } else {
@@ -2954,6 +3834,7 @@
 
         function playMusic() {
             musicWanted = true;
+            setMusicLoading(true);
 
             if (MUSIC.file && !musicFileFailed) {
                 if (!musicAudio) {
@@ -2968,18 +3849,34 @@
                         toast('Không tải được file MP3, chuyển sang nhạc YouTube...', 'warn');
                         if (musicWanted) startYouTube();
                     });
+                    musicAudio.addEventListener('playing', function () {
+                        if (!musicWanted) return;
+                        setMusicLoading(false);
+                        setMusicPlaying(true);
+                    });
                 }
                 musicAudio.volume = currentVolume / 100;
                 const promise = musicAudio.play();
                 if (promise && promise.then) {
                     promise.then(function () {
-                        if (musicWanted) setMusicPlaying(true);
-                    }).catch(function () {
-                        if (musicWanted && !musicFileFailed) {
-                            musicFileFailed = true;
-                            musicAudio = null;
-                            startYouTube();
+                        if (musicWanted) {
+                            setMusicLoading(false);
+                            setMusicPlaying(true);
                         }
+                    }).catch(function (err) {
+                        if (!musicWanted || musicFileFailed) return;
+
+                        /* Bị chặn tự phát: giữ file lại và chờ lần chạm đầu tiên. */
+                        if (err && err.name === 'NotAllowedError') {
+                            setMusicLoading(false);
+                            setMusicPlaying(false);
+                            armMusicGesture();
+                            return;
+                        }
+
+                        musicFileFailed = true;
+                        musicAudio = null;
+                        startYouTube();
                     });
                 }
                 return;
@@ -2990,6 +3887,8 @@
 
         function pauseMusic() {
             musicWanted = false;
+            disarmMusicGesture();
+            setMusicLoading(false);
             if (musicAudio) musicAudio.pause();
             if (musicPlayerYt && typeof musicPlayerYt.pauseVideo === 'function') {
                 try { musicPlayerYt.pauseVideo(); } catch (e) { /* bỏ qua */ }
@@ -2998,25 +3897,38 @@
         }
 
         function startYouTube() {
-            if (!musicWanted) return;
+            if (!musicWanted || musicCreating) return;
+            setMusicLoading(true);
 
             if (musicPlayerYt && typeof musicPlayerYt.playVideo === 'function') {
+                let called = false;
                 try {
                     musicPlayerYt.setVolume(currentVolume);
                     musicPlayerYt.playVideo();
-                    setMusicPlaying(true);
-                    return;
+                    called = true;
                 } catch (e) { /* tạo lại player bên dưới */ }
+                if (called) {
+                    window.setTimeout(function () { verifyMusicStarted(0); }, 1200);
+                    return;
+                }
             }
 
+            musicCreating = true;
             loadYouTubeApi(function () {
+                musicCreating = false;
                 if (!musicWanted) return;
                 if (!window.YT || !window.YT.Player) {
+                    setMusicLoading(false);
+                    armMusicGesture();
                     toast('Không tải được YouTube. Kiểm tra kết nối mạng nhé!', 'error');
                     return;
                 }
                 if (musicPlayerYt && typeof musicPlayerYt.playVideo === 'function') {
-                    try { musicPlayerYt.playVideo(); setMusicPlaying(true); } catch (e) { /* bỏ qua */ }
+                    try {
+                        musicPlayerYt.setVolume(currentVolume);
+                        musicPlayerYt.playVideo();
+                    } catch (e) { /* bỏ qua */ }
+                    window.setTimeout(function () { verifyMusicStarted(0); }, 1200);
                     return;
                 }
 
@@ -3025,7 +3937,7 @@
                     height: '120',
                     videoId: MUSIC.youtubeId,
                     playerVars: {
-                        autoplay: 0,
+                        autoplay: 1,
                         controls: 0,
                         disablekb: 1,
                         loop: 1,
@@ -3040,23 +3952,129 @@
                             try {
                                 event.target.setVolume(currentVolume);
                                 event.target.playVideo();
-                                setMusicPlaying(true);
                             } catch (e) { /* bỏ qua */ }
+                            window.setTimeout(function () { verifyMusicStarted(0); }, 1200);
                         },
                         onStateChange: function (event) {
                             if (event.data === YT.PlayerState.PLAYING) {
+                                setMusicLoading(false);
                                 if (musicWanted) setMusicPlaying(true);
                             } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
                                 setMusicPlaying(false);
                             }
                         },
                         onError: function () {
+                            setMusicLoading(false);
                             setMusicPlaying(false);
+                            armMusicGesture();
                             toast('Không phát được video YouTube. Bạn thử thêm file MP3 trong cấu hình nhé!', 'error');
                         }
                     }
                 });
             });
+        }
+
+        /* Kiểm tra player có thật sự phát không. Nếu bị trình duyệt chặn
+           thì chờ lần chạm/click đầu tiên của người dùng để bật nhạc. */
+        function verifyMusicStarted(attempt) {
+            if (!musicWanted) return;
+
+            let started = false;
+            if (musicAudio) {
+                try {
+                    started = !musicAudio.paused && musicAudio.readyState >= 2 && musicAudio.currentTime > 0;
+                } catch (e) { started = false; }
+            } else {
+                let state = -1;
+                try {
+                    if (musicPlayerYt && typeof musicPlayerYt.getPlayerState === 'function') {
+                        state = musicPlayerYt.getPlayerState();
+                    }
+                } catch (e) { state = -1; }
+                started = (state === 1 || state === 3);
+            }
+
+            if (started) {
+                setMusicLoading(false);
+                setMusicPlaying(true);
+                return;
+            }
+
+            const tries = typeof attempt === 'number' ? attempt : 0;
+            if (tries < 4) {
+                window.setTimeout(function () { verifyMusicStarted(tries + 1); }, 900);
+                return;
+            }
+
+            setMusicLoading(false);
+            setMusicPlaying(false);
+            armMusicGesture();
+        }
+
+        function armMusicGesture(showHint) {
+            const status = document.getElementById('music-status');
+            if (status && showHint !== false) status.textContent = 'Bấm vào trang để bật nhạc ▶️';
+
+            if (musicGestureArmed) return;
+            musicGestureArmed = true;
+
+            musicGestureHandler = function (event) {
+                const target = event.target;
+                if (target && typeof target.closest === 'function' &&
+                    target.closest('#music-toggle, #music-play, #music-volume')) {
+                    return;
+                }
+                disarmMusicGesture();
+                if (!musicWanted) return;
+                playMusic();
+            };
+
+            ['pointerdown', 'keydown', 'touchstart'].forEach(function (type) {
+                document.addEventListener(type, musicGestureHandler, true);
+            });
+        }
+
+        function disarmMusicGesture() {
+            if (!musicGestureArmed || !musicGestureHandler) return;
+            ['pointerdown', 'keydown', 'touchstart'].forEach(function (type) {
+                document.removeEventListener(type, musicGestureHandler, true);
+            });
+            musicGestureArmed = false;
+            musicGestureHandler = null;
+        }
+
+        function initMusicAutoplay() {
+            if (!MUSIC.autoplay || musicAutoTried) return;
+            if (!MUSIC.file && !MUSIC.youtubeId) return;
+            musicAutoTried = true;
+
+            window.setTimeout(function () {
+                if (musicPlaying) return;
+                musicWanted = true;
+                setMusicLoading(true);
+                armMusicGesture(false);
+                playMusic();
+
+                /* Nếu tải nhạc treo quá lâu thì chuyển sang chờ người dùng chạm. */
+                window.setTimeout(function () {
+                    if (!musicWanted || musicPlaying) return;
+                    musicCreating = false;
+                    setMusicLoading(false);
+                    armMusicGesture();
+                }, 8000);
+            }, 400);
+        }
+
+        function preloadYouTubeApi() {
+            if (!MUSIC.youtubeId || MUSIC.file) return;
+            const run = function () {
+                loadYouTubeApi(function () { /* nạp sẵn API để bấm nhạc không bị lag */ });
+            };
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(run, { timeout: 4000 });
+            } else {
+                window.setTimeout(run, 1800);
+            }
         }
 
         function loadYouTubeApi(callback) {
@@ -3081,6 +4099,9 @@
             tag.src = 'https://www.youtube.com/iframe_api';
             tag.onerror = function () {
                 ytApiLoading = false;
+                musicCreating = false;
+                setMusicLoading(false);
+                if (musicWanted) armMusicGesture();
                 toast('Không kết nối được YouTube. Kiểm tra mạng nhé!', 'error');
             };
             document.head.appendChild(tag);
