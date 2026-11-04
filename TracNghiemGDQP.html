@@ -1473,9 +1473,211 @@
 
         /* Thanh cuộn đẹp cho Firefox */
         * { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
+
+        /* ============================================================
+           14. MÀN HÌNH CHỜ (B1n loader)
+           ============================================================ */
+        .b1n-preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(110% 90% at 50% 0%, var(--primary-soft), transparent 62%),
+                var(--bg);
+            transition: opacity 0.45s ease, visibility 0.45s ease;
+        }
+
+        .b1n-preloader.done {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .b1n-preloader-inner {
+            display: grid;
+            justify-items: center;
+            gap: 24px;
+            transform: translateY(-3vh);
+        }
+
+        .b1n-mark {
+            position: relative;
+            width: 156px;
+            height: 156px;
+            display: grid;
+            place-items: center;
+        }
+
+        .b1n-halo {
+            position: absolute;
+            inset: -14px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary-soft) 0%, transparent 68%);
+            filter: blur(14px);
+            animation: b1nBreathe 2.8s ease-in-out infinite alternate;
+        }
+
+        .b1n-ring {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+            animation: b1nSpin 1.15s linear infinite;
+        }
+
+        .b1n-ring-track {
+            fill: none;
+            stroke: var(--border-strong);
+            stroke-width: 2;
+        }
+
+        .b1n-ring-arc {
+            fill: none;
+            stroke: url(#b1n-ring-grad);
+            stroke-width: 3.5;
+            stroke-linecap: round;
+            stroke-dasharray: 327;
+            stroke-dashoffset: 82;
+            filter: drop-shadow(0 0 6px var(--primary-soft));
+        }
+
+        .b1n-name {
+            position: relative;
+            z-index: 1;
+            font-size: 40px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            color: var(--primary);
+            background: var(--grad);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .b1n-caption {
+            display: grid;
+            gap: 10px;
+            width: 190px;
+            justify-items: center;
+        }
+
+        .b1n-caption-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .b1n-caption-text {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .b1n-percent {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 0.04em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .b1n-bar {
+            position: relative;
+            width: 100%;
+            height: 3px;
+            border-radius: 99px;
+            background: var(--border);
+            overflow: hidden;
+        }
+
+        .b1n-bar-fill {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            border-radius: inherit;
+            background: var(--grad);
+            transition: width 0.2s ease;
+        }
+
+        .b1n-bar-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+            animation: b1nShine 1.4s linear infinite;
+        }
+
+        .b1n-credit {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+            text-align: center;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            opacity: 0.75;
+        }
+
+        .b1n-credit b { color: var(--text); font-weight: 700; }
+
+        @keyframes b1nSpin { to { transform: rotate(270deg); } }
+        @keyframes b1nBreathe {
+            from { opacity: 0.55; transform: scale(0.94); }
+            to { opacity: 1; transform: scale(1.04); }
+        }
+        @keyframes b1nShine {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100%); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .b1n-ring, .b1n-halo, .b1n-bar-fill::after { animation: none !important; }
+        }
+
+        html.effects-off .b1n-ring,
+        html.effects-off .b1n-halo,
+        html.effects-off .b1n-bar-fill::after { animation: none !important; }
     </style>
 </head>
 <body>
+
+    <!-- MÀN HÌNH CHỜ -->
+    <div class="b1n-preloader" id="b1n-preloader" role="status" aria-live="polite" aria-label="Đang tải đề kiểm tra">
+        <div class="b1n-preloader-inner">
+            <div class="b1n-mark">
+                <span class="b1n-halo" aria-hidden="true"></span>
+                <svg class="b1n-ring" viewBox="0 0 120 120" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="b1n-ring-grad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="var(--primary)"></stop>
+                            <stop offset="100%" stop-color="var(--accent)"></stop>
+                        </linearGradient>
+                    </defs>
+                    <circle class="b1n-ring-track" cx="60" cy="60" r="52"></circle>
+                    <circle class="b1n-ring-arc" cx="60" cy="60" r="52"></circle>
+                </svg>
+                <span class="b1n-name">B1n</span>
+            </div>
+            <div class="b1n-caption">
+                <div class="b1n-caption-row">
+                    <span class="b1n-caption-text">Đang tải đề</span>
+                    <span class="b1n-percent" id="b1n-percent">0%</span>
+                </div>
+                <div class="b1n-bar"><span class="b1n-bar-fill" id="b1n-bar-fill"></span></div>
+            </div>
+        </div>
+        <div class="b1n-credit">GDQPAN 12 · <b>B1nTran</b></div>
+    </div>
 
     <!-- NỀN HIỆU ỨNG -->
     <div class="bg-scene" aria-hidden="true">
@@ -1768,8 +1970,8 @@
                         <path d="M11 5L6 9H3v6h3l5 4V5z"></path>
                         <path d="M15.5 8.5a5 5 0 010 7"></path>
                     </svg>
-                    <input type="range" id="music-volume" min="0" max="100" step="1" value="35" aria-label="Âm lượng nhạc nền">
-                    <span id="volume-label">35%</span>
+                    <input type="range" id="music-volume" min="0" max="100" step="1" value="25" aria-label="Âm lượng nhạc nền">
+                    <span id="volume-label">25%</span>
                 </div>
                 <p class="music-note-text">Nhạc chỉ phát khi bạn bấm nút. Trình duyệt chặn tự phát nên mình để mặc định tắt cho nhẹ máy.</p>
             </div>
@@ -2347,7 +2549,7 @@
         const MUSIC = {
             file: "lofi-study.mp3",
             youtubeId: "9kzE8isXlQY",
-            defaultVolume: 35,
+            defaultVolume: 20,
             autoplay: true
         };
 
@@ -2447,6 +2649,7 @@
         let musicCreating = false;
         let musicGestureArmed = false;
         let musicGestureHandler = null;
+        let musicFadeRaf = null;
         let ytApiLoading = false;
         let ytApiCallbacks = [];
         let currentVolume = (function () {
@@ -3763,6 +3966,60 @@
             if (label) label.textContent = currentVolume + '%';
         }
 
+        function cancelMusicFade() {
+            if (musicFadeRaf && window.cancelAnimationFrame) {
+                window.cancelAnimationFrame(musicFadeRaf);
+            }
+            musicFadeRaf = null;
+        }
+
+        function applyMusicVolume(value) {
+            const safe = Math.max(0, Math.min(1, value));
+            if (musicAudio) {
+                try { musicAudio.volume = safe; } catch (e) { /* bỏ qua */ }
+            }
+            if (musicPlayerYt && typeof musicPlayerYt.setVolume === 'function') {
+                try { musicPlayerYt.setVolume(Math.round(safe * 100)); } catch (e) { /* bỏ qua */ }
+            }
+        }
+
+        /* Vào nhạc nhẹ nhàng: bắt đầu từ 0 rồi tăng dần để không giật tai. */
+        function fadeInMusicVolume() {
+            cancelMusicFade();
+            const target = currentVolume / 100;
+            if (target <= 0) {
+                applyMusicVolume(0);
+                return;
+            }
+
+            applyMusicVolume(0);
+
+            if (!window.requestAnimationFrame) {
+                applyMusicVolume(target);
+                return;
+            }
+
+            const duration = 2400;
+            const startedAt = (window.performance && performance.now) ? performance.now() : Date.now();
+
+            function step(now) {
+                const current = (window.performance && performance.now) ? performance.now() : Date.now();
+                const elapsed = Math.max(0, (typeof now === 'number' && now > 0 ? now : current) - startedAt);
+                const t = Math.min(1, elapsed / duration);
+                const eased = 1 - Math.pow(1 - t, 2);
+                applyMusicVolume(target * eased);
+
+                if (t < 1) {
+                    musicFadeRaf = window.requestAnimationFrame(step);
+                } else {
+                    musicFadeRaf = null;
+                    applyMusicVolume(target);
+                }
+            }
+
+            musicFadeRaf = window.requestAnimationFrame(step);
+        }
+
         function setVolume(value) {
             currentVolume = Math.max(0, Math.min(100, parseInt(value, 10) || 0));
             try { localStorage.setItem('gdqp-volume', currentVolume); } catch (e) { /* bỏ qua */ }
@@ -3772,10 +4029,8 @@
             if (label) label.textContent = currentVolume + '%';
             if (input && parseInt(input.value, 10) !== currentVolume) input.value = currentVolume;
 
-            if (musicAudio) musicAudio.volume = currentVolume / 100;
-            if (musicPlayerYt && typeof musicPlayerYt.setVolume === 'function') {
-                try { musicPlayerYt.setVolume(currentVolume); } catch (e) { /* bỏ qua */ }
-            }
+            cancelMusicFade();
+            applyMusicVolume(currentVolume / 100);
         }
 
         function setMusicPlaying(playing) {
@@ -3819,6 +4074,7 @@
         function toggleMusic() {
             if (musicLoading) {
                 musicWanted = false;
+                cancelMusicFade();
                 disarmMusicGesture();
                 setMusicLoading(false);
                 setMusicPlaying(false);
@@ -3852,15 +4108,18 @@
                     musicAudio.addEventListener('playing', function () {
                         if (!musicWanted) return;
                         setMusicLoading(false);
+                        if (!musicPlaying) fadeInMusicVolume();
                         setMusicPlaying(true);
                     });
                 }
-                musicAudio.volume = currentVolume / 100;
+                cancelMusicFade();
+                musicAudio.volume = 0;
                 const promise = musicAudio.play();
                 if (promise && promise.then) {
                     promise.then(function () {
                         if (musicWanted) {
                             setMusicLoading(false);
+                            if (!musicPlaying) fadeInMusicVolume();
                             setMusicPlaying(true);
                         }
                     }).catch(function (err) {
@@ -3887,6 +4146,7 @@
 
         function pauseMusic() {
             musicWanted = false;
+            cancelMusicFade();
             disarmMusicGesture();
             setMusicLoading(false);
             if (musicAudio) musicAudio.pause();
@@ -3903,7 +4163,8 @@
             if (musicPlayerYt && typeof musicPlayerYt.playVideo === 'function') {
                 let called = false;
                 try {
-                    musicPlayerYt.setVolume(currentVolume);
+                    cancelMusicFade();
+                    musicPlayerYt.setVolume(musicPlaying ? currentVolume : 0);
                     musicPlayerYt.playVideo();
                     called = true;
                 } catch (e) { /* tạo lại player bên dưới */ }
@@ -3925,7 +4186,8 @@
                 }
                 if (musicPlayerYt && typeof musicPlayerYt.playVideo === 'function') {
                     try {
-                        musicPlayerYt.setVolume(currentVolume);
+                        cancelMusicFade();
+                        musicPlayerYt.setVolume(musicPlaying ? currentVolume : 0);
                         musicPlayerYt.playVideo();
                     } catch (e) { /* bỏ qua */ }
                     window.setTimeout(function () { verifyMusicStarted(0); }, 1200);
@@ -3950,7 +4212,8 @@
                         onReady: function (event) {
                             if (!musicWanted) return;
                             try {
-                                event.target.setVolume(currentVolume);
+                                cancelMusicFade();
+                                event.target.setVolume(musicPlaying ? currentVolume : 0);
                                 event.target.playVideo();
                             } catch (e) { /* bỏ qua */ }
                             window.setTimeout(function () { verifyMusicStarted(0); }, 1200);
@@ -3958,7 +4221,10 @@
                         onStateChange: function (event) {
                             if (event.data === YT.PlayerState.PLAYING) {
                                 setMusicLoading(false);
-                                if (musicWanted) setMusicPlaying(true);
+                                if (musicWanted) {
+                                    if (!musicPlaying) fadeInMusicVolume();
+                                    setMusicPlaying(true);
+                                }
                             } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
                                 setMusicPlaying(false);
                             }
@@ -3996,6 +4262,7 @@
 
             if (started) {
                 setMusicLoading(false);
+                if (!musicPlaying) fadeInMusicVolume();
                 setMusicPlaying(true);
                 return;
             }
@@ -4133,6 +4400,57 @@
                 window.setTimeout(function () { el.remove(); }, 300);
             }, 2700);
         }
+
+        /* =====================================================================
+           MÀN HÌNH CHỜ
+           ===================================================================== */
+        (function () {
+            const preloader = document.getElementById('b1n-preloader');
+            if (!preloader) return;
+
+            const bar = document.getElementById('b1n-bar-fill');
+            const percent = document.getElementById('b1n-percent');
+            const startedAt = Date.now();
+            const MIN_SHOW = 900;
+            let progress = 6;
+            let finished = false;
+
+            function paint(value) {
+                progress = Math.min(100, Math.round(value));
+                if (bar) bar.style.width = progress + '%';
+                if (percent) percent.textContent = progress + '%';
+            }
+
+            paint(progress);
+            const tick = window.setInterval(function () {
+                if (finished || progress >= 92) return;
+                const step = progress < 55 ? 7 : progress < 80 ? 3.5 : 1.2;
+                paint(progress + step);
+            }, 110);
+
+            function hide() {
+                if (finished) return;
+                finished = true;
+                window.clearInterval(tick);
+                paint(100);
+
+                const wait = Math.max(0, MIN_SHOW - (Date.now() - startedAt));
+                window.setTimeout(function () {
+                    preloader.classList.add('done');
+                    preloader.setAttribute('aria-hidden', 'true');
+                    window.setTimeout(function () { preloader.remove(); }, 600);
+                }, wait);
+            }
+
+            if (document.readyState === 'complete') {
+                window.setTimeout(hide, 250);
+            } else {
+                window.addEventListener('load', function () { window.setTimeout(hide, 250); }, { once: true });
+            }
+
+            /* An toàn: không để màn hình chờ kẹt mãi */
+            window.setTimeout(hide, 6000);
+        })();
     </script>
 </body>
 </html>
